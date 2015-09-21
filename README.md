@@ -1,5 +1,4 @@
 # DataDuck ETL
---------------
 
 ##### Set up in under 5 minutes
 
