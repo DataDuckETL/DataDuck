@@ -44,7 +44,7 @@ module DataDuck
         "\"#{ name }\" #{ redshift_data_type }"
       end
       props_string = props_array.join(', ')
-      "CREATE TABLE IF NOT EXISTS #{ table.name } (#{ props_string })"
+      "CREATE TABLE IF NOT EXISTS #{ table_name } (#{ props_string })"
     end
 
     def create_output_table_on_data_warehouse!(table)
@@ -125,8 +125,18 @@ module DataDuck
         self.create_staging_table!(table)
         self.create_output_table_on_data_warehouse!(table)
         self.run_query(self.copy_query(table, s3_object.s3_path))
+        self.merge_from_staging!(table)
         self.drop_staging_table!(table)
       end
+    end
+
+    def merge_from_staging!(table)
+      # Following guidelines in http://docs.aws.amazon.com/redshift/latest/dg/merge-examples.html
+      staging_name = self.staging_table_name(table)
+      delete_query = "DELETE FROM #{ table.name } USING #{ staging_name } WHERE #{ table.name }.id = #{ staging_name }.id" # TODO allow custom or multiple keys
+      self.run_query(delete_query)
+      insert_query = "INSERT INTO #{ table.name } (\"#{ table.output_column_names.join('","') }\") SELECT \"#{ table.output_column_names.join('","') }\" FROM #{ staging_name }"
+      self.run_query(insert_query)
     end
 
     def data_as_csv_string(data, property_names)
