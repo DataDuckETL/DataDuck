@@ -12,15 +12,23 @@ DataDuck ETL is currently focused on loading to Amazon Redshift (through Amazon 
 
 ## Installation
 
-Add this line to your application's Gemfile:
+##### Example project
+
+See [https://github.com/DataDuckETL/DataDuckExample](https://github.com/DataDuckETL/DataDuckExample) for an example project setup.
+
+##### Instructions for using DataDuck ETL
+
+Create a new project, then add the following to your Gemfile:
 
 ```ruby
 gem 'dataduck', :git => 'git://github.com/DataDuckETL/DataDuck.git'
 ```
 
-And then execute:
+Then execute:
 
     $ bundle install
+
+Then use main.rb from the [DataDuckExample](https://github.com/DataDuckETL/DataDuckExample) project as a way to trigger your ETL.
 
 ## Contributing
 
