@@ -1,7 +1,15 @@
 # DataDuck ETL
 --------------
 
-DataDuck ETL is an ETL framework for setting up a data warehouse.
+## Set up in under 5 minutes
+
+DataDuck ETL is probably the quickest extract-transform-load framework system to set up. If you want to set up a data warehouse, give DataDuck ETL a try.
+
+## Extract-transform-load to Amazon Redshift
+
+DataDuck ETL is currently focused on loading to Amazon Redshift (through Amazon S3).
+
+![DataDuck ETL](static/logo.png "DataDuck ETL")
 
 ## Installation
 
