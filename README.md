@@ -1,11 +1,11 @@
 # DataDuck ETL
 --------------
 
-## Set up in under 5 minutes
+##### Set up in under 5 minutes
 
 DataDuck ETL is probably the quickest extract-transform-load framework system to set up. If you want to set up a data warehouse, give DataDuck ETL a try.
 
-## Extract-transform-load to Amazon Redshift
+##### Extract-transform-load to Amazon Redshift
 
 DataDuck ETL is currently focused on loading to Amazon Redshift (through Amazon S3).
 
@@ -16,7 +16,7 @@ DataDuck ETL is currently focused on loading to Amazon Redshift (through Amazon 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'dataduck'
+gem 'dataduck', :git => 'git://github.com/DataDuckETL/DataDuck.git'
 ```
 
 And then execute:
