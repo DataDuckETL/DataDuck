@@ -28,7 +28,11 @@ Then execute:
 
     $ bundle install
 
-Then use main.rb from the [DataDuckExample](https://github.com/DataDuckETL/DataDuckExample) project as a way to trigger your ETL.
+Finally, run the quickstart command:
+
+    $ dataduck quickstart
+    
+The quickstart wizard will ask you for credentials to your database, then create the basic setup for your project.
 
 ## Contributing
 
