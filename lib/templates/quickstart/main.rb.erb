@@ -1,0 +1,10 @@
+require 'rubygems'
+require 'bundler/setup'
+Bundler.require
+
+class MyETL < DataDuck::ETL
+  destination :main_destination
+end
+
+etl = MyETL.new
+etl.process!

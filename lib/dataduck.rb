@@ -20,7 +20,8 @@ module DataDuck
   create_module_var("project_root", "/Users/jrp/projects/dd_redshift")
   create_module_var("config", {})
 
-  env_config = YAML.load_file(DataDuck.project_root + "/config/secret/#{ ENV['DATADUCK_ENV'] }.yml")
+  dd_env_path = DataDuck.project_root + "/config/secret/#{ ENV['DATADUCK_ENV'] }.yml"
+  env_config = File.exist?(dd_env_path) ? YAML.load_file(dd_env_path) : {}
   DataDuck.config.merge!(env_config)
 
   create_module_var("sources", {})

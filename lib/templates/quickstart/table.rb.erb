@@ -1,0 +1,7 @@
+class <%= table_name %> < DataDuck::Table
+  source :my_database
+
+  columns({<% columns.each do |col| %>
+      <%= '# ' if col[2] %>:<%= col[0] %> => :<%= col[1] %>,<% end %>
+  })
+end

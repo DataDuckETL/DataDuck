@@ -17,9 +17,21 @@ module DataDuck
         raise ArgumentError.new("Unknown type '#{ source_type }' for source #{ name }.")
       end
     end
-  end
 
-  def query
-    raise Exception.new("Must implement query in subclass.")
+    def connection
+      raise Exception.new("Must implement connection in subclass.")
+    end
+
+    def query
+      raise Exception.new("Must implement query in subclass.")
+    end
+
+    def schema(table_name)
+      self.connection.schema(table_name)
+    end
+
+    def self.skip_these_table_names
+      [:delayed_jobs, :schema_migrations]
+    end
   end
 end

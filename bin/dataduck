@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require_relative "../lib/dataduck"
 require_relative "../lib/dataduck/commands"
 
 DataDuck::Commands.route_command(ARGV)
