@@ -31,8 +31,10 @@ Then execute:
 Finally, run the quickstart command:
 
     $ dataduck quickstart
-    
-The quickstart wizard will ask you for credentials to your database, then create the basic setup for your project.
+
+The quickstart wizard will ask you for credentials to your database, then create the basic setup for your project. After the setup, your project's ETL can be run by running `ruby src/main.rb`
+
+If you'd like to run this regularly, such as every night, it's recommended to use the [whenever](https://github.com/javan/whenever) gem to manage a cron job to regularly run the ETL.
 
 ## Contributing
 
