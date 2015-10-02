@@ -40,9 +40,11 @@ If you'd like to run this regularly, such as every night, it's recommended to us
 
 Tables are defined in their own file under /src/tables. Here's an example table:
 
-```
+```ruby
 class Decks < DataDuck::Table
-  source :my_database, ["id", "name", "user_id", "cards", "num_wins", "num_losses", "created_at", "updated_at", "is_drafted", "num_draft_wins", "num_draft_losses"]
+  source :my_database, ["id", "name", "user_id", "cards",
+      "num_wins", "num_losses", "created_at", "updated_at",
+      "is_drafted", "num_draft_wins", "num_draft_losses"]
 
   transform :calculate_num_totals
 
@@ -57,7 +59,9 @@ class Decks < DataDuck::Table
       :created_at => :datetime,
       :updated_at => :datetime,
       :is_drafted => :boolean,
-      # note that num_draft_wins and num_draft_losses are not included in the output
+      # Note that num_draft_wins and num_draft_losses
+      # are not included in the output, but are used in
+      # the transformation.
   })
 
   def calculate_num_totals(row)
