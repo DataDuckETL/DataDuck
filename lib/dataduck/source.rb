@@ -1,5 +1,14 @@
 module DataDuck
+
   class Source
+    def self.source_config(name)
+      if DataDuck.config['sources'].nil? || DataDuck.config['sources'][name.to_s].nil?
+        raise Exception.new("Could not find source #{ name } in source configs.")
+      end
+
+      DataDuck.config['sources'][name.to_s]
+    end
+
     def self.source(name)
       name = name.to_s
 
@@ -7,7 +16,7 @@ module DataDuck
         return DataDuck.sources[name]
       end
 
-      configuration = DataDuck.config['sources'][name.to_s]
+      configuration = DataDuck::Source.source_config(name)
       source_type = configuration['type']
 
       if source_type == "postgresql"

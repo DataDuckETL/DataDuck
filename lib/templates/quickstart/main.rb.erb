@@ -3,7 +3,7 @@ require 'bundler/setup'
 Bundler.require
 
 class MyETL < DataDuck::ETL
-  destination :main_destination
+  destination :my_destination
 end
 
 etl = MyETL.new

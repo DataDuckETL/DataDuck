@@ -1,7 +1,7 @@
 class <%= table_name %> < DataDuck::Table
-  source :my_database
+  source :my_database, ["<%= columns.map { |col| col[0] }.join('", "') %>"]
 
-  columns({<% columns.each do |col| %>
+  output({<% columns.each do |col| %>
       <%= '# ' if col[2] %>:<%= col[0] %> => :<%= col[1] %>,<% end %>
   })
 end

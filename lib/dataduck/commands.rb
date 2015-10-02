@@ -17,7 +17,7 @@ module DataDuck
     end
 
     def self.acceptable_commands
-      ['quickstart']
+      ['console', 'quickstart']
     end
 
     def self.route_command(args)
@@ -32,6 +32,11 @@ module DataDuck
       end
 
       DataDuck::Commands.public_send(command)
+    end
+
+    def self.console
+      require "irb"
+      IRB.start
     end
 
     def self.help
@@ -75,29 +80,29 @@ module DataDuck
       end
 
       config_obj = {
-        sources: {
-          my_source: {
-            type: 'postgresql',
-            host: source_host,
-            database: source_database,
-            port: source_port,
-            username: source_username,
-            password: source_password,
+        'sources' => {
+          'my_database' => {
+            'type' => 'postgresql',
+            'host' => source_host,
+            'database' => source_database,
+            'port' => source_port,
+            'username' => source_username,
+            'password' => source_password,
           }
         },
-        destinations: {
-          my_destination: {
-            type: 'redshift',
-            aws_key: 'YOUR_AWS_KEY',
-            aws_secret: 'YOUR_AWS_SECRET',
-            s3_bucket: 'YOUR_BUCKET',
-            s3_region: 'YOUR_BUCKET_REGION',
-            host: 'redshift.somekeygoeshere.us-west-2.redshift.amazonaws.com',
-            port: 5439,
-            database: 'main',
-            schema: 'public',
-            username: 'YOUR_UESRNAME',
-            password: 'YOUR_PASSWORD',
+        'destinations' => {
+          'my_destination' => {
+            'type'  => 'redshift',
+            'aws_key'  => 'YOUR_AWS_KEY',
+            'aws_secret'  => 'YOUR_AWS_SECRET',
+            's3_bucket'  => 'YOUR_BUCKET',
+            's3_region'  => 'YOUR_BUCKET_REGION',
+            'host'  => 'redshift.somekeygoeshere.us-west-2.redshift.amazonaws.com',
+            'port'  => 5439,
+            'database'  => 'main',
+            'schema'  => 'public',
+            'username'  => 'YOUR_UESRNAME',
+            'password'  => 'YOUR_PASSWORD',
           }
         }
       }
@@ -127,7 +132,7 @@ module DataDuck
         property_name = property_schema[0]
         property_type = property_schema[1][:type]
         commented_out = ['ssn', 'socialsecurity', 'password', 'encrypted_password', 'salt', 'password_salt', 'pw'].include?(property_name.to_s.downcase)
-        columns << [property_name, property_type, commented_out]
+        columns << [property_name.to_s, property_type.to_s, commented_out]
       end
 
       table_name = table_name.to_s.downcase

@@ -1,5 +1,13 @@
 module DataDuck
   class Destination
+    def self.destination_config(name)
+      if DataDuck.config['destinations'].nil? || DataDuck.config['destinations'][name.to_s].nil?
+        raise Exception.new("Could not find destination #{ name } in destinations configs.")
+      end
+
+      DataDuck.config['destinations'][name.to_s]
+    end
+
     def load_tables!(tables)
       raise Exception.new("Must implement load_tables! in subclass")
     end
@@ -19,7 +27,7 @@ module DataDuck
         return DataDuck.destinations[destination_name]
       end
 
-      destination_configuration = DataDuck.config['destinations'][destination_name.to_s]
+      destination_configuration = DataDuck::Destination.destination_config(destination_name)
       destination_type = destination_configuration['type']
       if destination_type == "redshift"
         DataDuck.destinations[destination_name] = DataDuck::RedshiftDestination.new(destination_configuration)

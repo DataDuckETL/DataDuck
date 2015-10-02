@@ -17,9 +17,10 @@ module DataDuck
       @autoload_tables = options[:autoload_tables].nil? ? true : options[:autoload_tables]
       if @autoload_tables
         Dir[DataDuck.project_root + "/src/tables/*.rb"].each do |file|
-          table_name = file.split("/").last.gsub(".rb", "").capitalize
+          table_name_underscores = file.split("/").last.gsub(".rb", "")
+          table_name_camelized = DataDuck::Util.underscore_to_camelcase(table_name_underscores)
           require file
-          table = Object.const_get(table_name)
+          table = Object.const_get(table_name_camelized)
           if table <= DataDuck::Table
             @tables << table
           end

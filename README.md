@@ -36,6 +36,38 @@ The quickstart wizard will ask you for credentials to your database, then create
 
 If you'd like to run this regularly, such as every night, it's recommended to use the [whenever](https://github.com/javan/whenever) gem to manage a cron job to regularly run the ETL.
 
+## Documentation
+
+Tables are defined in their own file under /src/tables. Here's an example table:
+
+```
+class Decks < DataDuck::Table
+  source :my_database, ["id", "name", "user_id", "cards", "num_wins", "num_losses", "created_at", "updated_at", "is_drafted", "num_draft_wins", "num_draft_losses"]
+
+  transform :calculate_num_totals
+
+  output({
+      :id => :integer,
+      :name => :string,
+      :user_id => :integer,
+      :num_wins => :integer,
+      :num_losses => :integer,
+      :num_total => :integer,
+      :num_draft_total => :integer,
+      :created_at => :datetime,
+      :updated_at => :datetime,
+      :is_drafted => :boolean,
+      # note that num_draft_wins and num_draft_losses are not included in the output
+  })
+
+  def calculate_num_totals(row)
+    row[:num_total] = row[:num_wins] + row[:num_losses]
+    row[:num_draft_total] = row[:num_draft_wins] + row[:num_draft_losses]
+    row
+  end
+end
+```
+
 ## Contributing
 
 There will be a Contributor License Agreement (CLA) soon. In the meantime, please hold off on contributing code.

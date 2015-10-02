@@ -39,7 +39,7 @@ module DataDuck
     def create_columns_on_data_warehouse!(table)
       columns = get_columns_in_data_warehouse(table)
       column_names = columns.map { |col| col[:name].to_s }
-      table.column_data.map do |name, data_type|
+      table.output_schema.map do |name, data_type|
         if !column_names.include?(name.to_s)
           redshift_data_type = data_type.to_s
           redshift_data_type = 'varchar(255)' if redshift_data_type == 'string'
@@ -50,7 +50,7 @@ module DataDuck
 
     def create_table_query(table, table_name = nil)
       table_name ||= table.name
-      props_array = table.column_data.map do |name, data_type|
+      props_array = table.output_schema.map do |name, data_type|
         redshift_data_type = data_type.to_s
         redshift_data_type = 'varchar(255)' if redshift_data_type == 'string'
         "\"#{ name }\" #{ redshift_data_type }"
@@ -150,6 +150,7 @@ module DataDuck
 
     def load_tables!(tables)
       tables.each do |table|
+        puts "Loading table #{ table.name }..."
         s3_object = self.upload_table_to_s3!(table)
         self.create_staging_table!(table)
         self.create_output_table_on_data_warehouse!(table)
