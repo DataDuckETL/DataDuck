@@ -17,7 +17,7 @@ module DataDuck
   spec = Gem::Specification.find_by_name("dataduck")
   create_module_var("gem_root", spec.gem_dir)
 
-  create_module_var("project_root", "/Users/jrp/projects/dd_redshift")
+  create_module_var("project_root", Dir.getwd)
   create_module_var("config", {})
 
   dd_env_path = DataDuck.project_root + "/config/secret/#{ ENV['DATADUCK_ENV'] }.yml"
