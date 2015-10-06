@@ -1,0 +1,5 @@
+.idea
+.DS_Store
+config/secrets.yml
+config/secret
+*.lock

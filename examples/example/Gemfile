@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+
+gem 'dataduck', :git => 'git://github.com/DataDuckETL/DataDuck.git'
+
+ruby '2.1.2'

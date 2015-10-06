@@ -1,0 +1,22 @@
+# Move this file to /config/secret/development.yml and /config/secret/production.yml
+destinations:
+  main_destination:
+    type: redshift
+    aws_key: YOUR_AWS_KEY
+    aws_secret: YOUR_AWS_SECRET
+    s3_bucket: YOUR_BUCKET
+    s3_region: YOUR_BUCKET_REGION
+    host: redshift.somekeygoeshere.us-west-2.redshift.amazonaws.com
+    port: 5439
+    database: main
+    schema: public
+    username: YOUR_UESRNAME
+    password: YOUR_PASSWORD
+sources:
+  my_database:
+    type: postgresql
+    host: some.host.goes.here.com
+    database: db_name_goes_here
+    port: 5522
+    username: some_username_goes_here_probably_read_only
+    password: some_password_goes_here
