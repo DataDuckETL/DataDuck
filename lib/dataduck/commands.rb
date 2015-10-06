@@ -112,6 +112,8 @@ module DataDuck
       DataDuck::Commands.quickstart_update_gitignore
 
       puts "Quickstart complete!"
+      puts "You still need to edit your config/secret/*.yml file with your AWS and Redshift credentials."
+      puts "Run your ETL with: ruby src/main.rb"
     end
 
     def self.quickstart_update_gitignore
