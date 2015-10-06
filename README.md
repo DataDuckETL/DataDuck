@@ -84,4 +84,4 @@ To contribute, get in touch at http://DataDuckETL.com/ so that we can share the 
 
 ## License
 
-Get in touch at http://DataDuckETL.com/ for a license.
+Get in touch or visit [http://dataducketl.com/licensing](http://dataducketl.com/licensing) for licensing.
