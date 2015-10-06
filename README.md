@@ -14,7 +14,7 @@ DataDuck ETL is currently focused on loading to Amazon Redshift (through Amazon 
 
 ##### Example project
 
-See [https://github.com/DataDuckETL/DataDuckExample](https://github.com/DataDuckETL/DataDuckExample) for an example project setup.
+See [https://github.com/DataDuckETL/DataDuck/tree/master/examples/example](https://github.com/DataDuckETL/DataDuck/tree/master/examples/example) for an example project setup.
 
 ##### Instructions for using DataDuck ETL
 
@@ -71,7 +71,7 @@ class Decks < DataDuck::Table
     row[:num_draft_total] = row[:num_draft_wins] + row[:num_draft_losses]
     row
   end
-  
+
   def validates_num_total(row)
     return "Deck id #{ row[:id] } has negative value #{ row[:num_total] } for num_total." if row[:num_total] < 0
   end
