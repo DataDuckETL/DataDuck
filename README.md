@@ -80,7 +80,7 @@ end
 
 ## Contributing
 
-There will be a Contributor License Agreement (CLA) soon. In the meantime, please hold off on contributing code.
+To contribute, get in touch at http://DataDuckETL.com/ so that we can share the [Contributor License Agreement (CLA)](https://en.wikipedia.org/wiki/Contributor_License_Agreement) with you, then create a pull request.
 
 ## License
 
