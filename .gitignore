@@ -11,3 +11,4 @@ log
 .DS_Store
 *.lock
 .idea
+*.gem
