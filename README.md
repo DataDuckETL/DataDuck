@@ -18,10 +18,12 @@ See [https://github.com/DataDuckETL/DataDuck/tree/master/examples/example](https
 
 ##### Instructions for using DataDuck ETL
 
-Create a new project, then add the following to your Gemfile:
+Create a new, empty directory. Inside this directory, create a file named Gemfile, and add the following to it:
 
 ```ruby
-gem 'dataduck', :git => 'git://github.com/DataDuckETL/DataDuck.git'
+source 'https://rubygems.org'
+
+gem 'dataduck'
 ```
 
 Then execute:
