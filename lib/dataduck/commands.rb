@@ -16,6 +16,21 @@ module DataDuck
       end
     end
 
+    def self.prompt_choices(choices = [])
+      while true
+        print "Enter a number 0 - #{ choices.length - 1}\n"
+        choices.each_with_index do |choice, idx|
+          choice_name = choice.is_a?(String) ? choice : choice[1]
+          print "#{ idx }: #{ choice_name }\n"
+        end
+        choice = STDIN.gets.strip.to_i
+        if 0 <= choice && choice < choices.length
+          selected = choices[choice]
+          return selected.is_a?(String) ? selected : selected[0]
+        end
+      end
+    end
+
     def self.acceptable_commands
       ['console', 'quickstart']
     end
@@ -47,7 +62,20 @@ module DataDuck
       puts "Welcome to DataDuck!"
       puts "This quickstart wizard will create your application, assuming the source is a Postgres database and the destination is an Amazon Redshift data warehouse."
 
-      puts "Enter the source (Postgres database) hostname:"
+
+      puts "What kind of database would you like to source from?"
+      db_type = prompt_choices([
+          [:mysql, "MySQL"],
+          [:postgresql, "PostgreSQL"],
+          [:other, "other"],
+      ])
+
+      if db_type == :other
+        puts "You've selected 'other'. Unfortunately, those are the only choices supported at the moment. Contact us at DataDuckETL.com to request support for your database."
+        exit
+      end
+
+      puts "Enter the source hostname:"
       source_host = STDIN.gets.strip
 
       puts "Enter the name of the database when connecting to #{ source_host }:"
@@ -62,8 +90,13 @@ module DataDuck
       puts "Enter the password:"
       source_password = STDIN.noecho(&:gets).chomp
 
-      db_source = DataDuck::PostgresqlSource.new({
-          'type' => 'postgresql',
+      db_class = {
+          mysql: DataDuck::MysqlSource,
+          postgresql: DataDuck::PostgresqlSource,
+      }[db_type]
+
+      db_source = db_class.new({
+          'db_type' => db_type.to_s,
           'host' => source_host,
           'database' => source_database,
           'port' => source_port,

@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "sequel", '~> 4.19'
   spec.add_runtime_dependency "pg", '~> 0.16'
+  spec.add_runtime_dependency "mysql", "~> 2.9"
   spec.add_runtime_dependency "aws-sdk", "~> 2.0"
   spec.add_runtime_dependency "sequel-redshift"
 end
