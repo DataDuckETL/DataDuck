@@ -60,8 +60,7 @@ module DataDuck
 
     def self.quickstart
       puts "Welcome to DataDuck!"
-      puts "This quickstart wizard will create your application, assuming the source is a Postgres database and the destination is an Amazon Redshift data warehouse."
-
+      puts "This quickstart wizard will help you set up DataDuck."
 
       puts "What kind of database would you like to source from?"
       db_type = prompt_choices([
