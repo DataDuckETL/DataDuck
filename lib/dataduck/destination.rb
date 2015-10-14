@@ -8,16 +8,8 @@ module DataDuck
       DataDuck.config['destinations'][name.to_s]
     end
 
-    def load_tables!(tables)
-      raise Exception.new("Must implement load_tables! in subclass")
-    end
-
-    def before_all_loads!
-
-    end
-
-    def after_all_loads!
-      # e.g. cleanup
+    def load_table!(table)
+      raise Exception.new("Must implement load_table! in subclass")
     end
 
     def self.destination(destination_name)

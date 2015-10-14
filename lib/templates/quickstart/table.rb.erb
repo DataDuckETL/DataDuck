@@ -1,5 +1,5 @@
-class <%= table_name %> < DataDuck::Table
-  source :my_database, ["<%= columns.map { |col| col[0] }.join('", "') %>"]
+class <%= table_name_camelcased %> < DataDuck::Table
+  source :my_database, :<%= table_name %>, ["<%= columns.map { |col| col[0] }.join('", "') %>"]
 
   output({<% columns.each do |col| %>
       <%= '# ' if col[2] %>:<%= col[0] %> => :<%= col[1] %>,<% end %>

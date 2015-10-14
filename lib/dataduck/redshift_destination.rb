@@ -144,24 +144,14 @@ module DataDuck
       return s3_obj
     end
 
-    def before_all_loads!(tables)
-
-    end
-
-    def load_tables!(tables)
-      tables.each do |table|
-        puts "Loading table #{ table.name }..."
-        s3_object = self.upload_table_to_s3!(table)
-        self.create_staging_table!(table)
-        self.create_output_table_on_data_warehouse!(table)
-        self.run_query(self.copy_query(table, s3_object.s3_path))
-        self.merge_from_staging!(table)
-        self.drop_staging_table!(table)
-      end
-    end
-
-    def after_all_loads!(tables)
-
+    def load_table!(table)
+      puts "Loading table #{ table.name }..."
+      s3_object = self.upload_table_to_s3!(table)
+      self.create_staging_table!(table)
+      self.create_output_table_on_data_warehouse!(table)
+      self.run_query(self.copy_query(table, s3_object.s3_path))
+      self.merge_from_staging!(table)
+      self.drop_staging_table!(table)
     end
 
     def self.value_to_string(value)

@@ -80,7 +80,8 @@ module DataDuck
       puts "Transforming table #{ self.name }..."
 
       self.errors ||= []
-      self.actions.each do |action|
+      self.class.actions ||= []
+      self.class.actions.each do |action|
         action_type = action[0]
         action_method_name = action[1]
         if action_type == :transform

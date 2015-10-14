@@ -31,18 +31,13 @@ module DataDuck
     def process!
       puts "Processing ETL..."
 
-      table_instances = []
       @tables.each do |table_class|
-        table_instance = table_class.new
-        table_instances << table_instance
-        table_instance.extract!
-        table_instance.transform!
-      end
-
-      self.class.destinations.each do |destination|
-        destination.before_all_loads!(table_instances)
-        destination.load_tables!(table_instances)
-        destination.after_all_loads!(table_instances)
+        table_to_etl = table_class.new
+        table_to_etl.extract!
+        table_to_etl.transform!
+        self.class.destinations.each do |destination|
+          destination.load_table!(table_to_etl)
+        end
       end
     end
   end

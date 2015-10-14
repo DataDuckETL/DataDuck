@@ -169,9 +169,11 @@ module DataDuck
         columns << [property_name.to_s, property_type.to_s, commented_out]
       end
 
+      columns.sort! { |a, b| a[0] <=> b[0] }
+
       table_name = table_name.to_s.downcase
       table_name_camelcased = table_name.split('_').collect(&:capitalize).join
-      namespace = Namespace.new(table_name: table_name_camelcased, columns: columns)
+      namespace = Namespace.new(table_name_camelcased: table_name_camelcased, table_name: table_name, columns: columns)
       template = File.open("#{ DataDuck.gem_root }/lib/templates/quickstart/table.rb.erb", 'r').read
       result = ERB.new(template).result(namespace.get_binding)
       DataDuck::Commands.quickstart_save_file("#{ DataDuck.project_root }/src/tables/#{ table_name }.rb", result)
