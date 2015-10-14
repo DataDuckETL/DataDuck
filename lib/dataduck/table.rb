@@ -4,10 +4,10 @@ module DataDuck
       attr_accessor :sources
       attr_accessor :output_schema
       attr_accessor :actions
-      attr_accessor :errors
     end
 
     attr_accessor :data
+    attr_accessor :errors
 
     def self.transforms(transformation_name)
       self.actions ||= []
@@ -21,10 +21,20 @@ module DataDuck
     end
     singleton_class.send(:alias_method, :validate, :validates)
 
-    def self.source(source_name, source_data = [])
-      self.sources ||= {}
-      source = DataDuck::Source.source(source_name)
-      self.sources[source] = source_data
+    def self.source(source_name, source_table_or_query = nil, source_columns = nil)
+      self.sources ||= []
+
+      source_spec = {}
+      if source_table_or_query.respond_to?(:to_s) && source_table_or_query.to_s.downcase.include?('select ')
+        source_spec = {query: source_table_or_query}
+      elsif source_columns.nil? && source_table_or_query.respond_to?(:each)
+        source_spec = {columns: source_table_or_query, table_name: DataDuck::Util.camelcase_to_underscore(self.name)}
+      else
+        source_spec = {columns: source_columns, table_name: source_table_or_query.to_s}
+      end
+
+      source_spec[:source] = DataDuck::Source.source(source_name)
+      self.sources << source_spec
     end
 
     def self.output(schema)
@@ -49,12 +59,21 @@ module DataDuck
 
       self.errors ||= []
       self.data = []
-      self.class.sources.each_pair do |source, source_columns|
-        import_query = "SELECT \"#{ source_columns.sort.join('","') }\" FROM #{ self.name }"
-        results = source.query(import_query)
+      self.class.sources.each do |source_spec|
+        source = source_spec[:source]
+        my_query = self.extract_query(source_spec)
+        results = source.query(my_query)
         self.data = results
       end
       self.data
+    end
+
+    def extract_query(source_spec)
+      if source_spec.has_key?(:query)
+        query
+      else
+        "SELECT \"#{ source_spec[:columns].sort.join('","') }\" FROM #{ source_spec[:table_name] }"
+      end
     end
 
     def transform!

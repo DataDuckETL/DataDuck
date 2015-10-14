@@ -114,7 +114,7 @@ module DataDuck
       config_obj = {
         'sources' => {
           'my_database' => {
-            'type' => 'postgresql',
+            'type' => db_type.to_s,
             'host' => source_host,
             'database' => source_database,
             'port' => source_port,

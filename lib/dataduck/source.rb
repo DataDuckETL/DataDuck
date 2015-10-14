@@ -22,6 +22,9 @@ module DataDuck
       if source_type == "postgresql"
         DataDuck.sources[name] = DataDuck::PostgresqlSource.new(configuration)
         return DataDuck.sources[name]
+      elsif source_type == "mysql"
+        DataDuck.sources[name] = DataDuck::MysqlSource.new(configuration)
+        return DataDuck.sources[name]
       else
         raise ArgumentError.new("Unknown type '#{ source_type }' for source #{ name }.")
       end
