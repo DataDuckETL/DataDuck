@@ -145,7 +145,7 @@ module DataDuck
     end
 
     def load_table!(table)
-      puts "Loading table #{ table.name }..."
+      DataDuck::Logs.info "Loading table #{ table.name }..."
       s3_object = self.upload_table_to_s3!(table)
       self.create_staging_table!(table)
       self.create_output_table_on_data_warehouse!(table)

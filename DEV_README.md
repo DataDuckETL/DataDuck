@@ -2,7 +2,9 @@
 
 ## Publishing to Rubygems
 
-Ensure the version number is updated.
+Ensure the version number is updated (lib/dataduck/version.rb.
+
+rspec
 
 gem build dataduck.gemspec
 

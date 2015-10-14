@@ -55,7 +55,7 @@ module DataDuck
     end
 
     def extract!
-      puts "Extracting table #{ self.name }..."
+      DataDuck::Logs.info "Extracting table #{ self.name }..."
 
       self.errors ||= []
       self.data = []
@@ -77,7 +77,7 @@ module DataDuck
     end
 
     def transform!
-      puts "Transforming table #{ self.name }..."
+      DataDuck::Logs.info "Transforming table #{ self.name }..."
 
       self.errors ||= []
       self.class.actions ||= []

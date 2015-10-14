@@ -29,7 +29,7 @@ module DataDuck
     end
 
     def process!
-      puts "Processing ETL..."
+      DataDuck::Logs.info "Processing ETL..."
 
       @tables.each do |table_class|
         table_to_etl = table_class.new
