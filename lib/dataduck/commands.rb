@@ -51,6 +51,7 @@ module DataDuck
 
     def self.console
       require "irb"
+      ARGV.clear
       IRB.start
     end
 
