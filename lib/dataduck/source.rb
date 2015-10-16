@@ -1,6 +1,23 @@
 module DataDuck
+  class Source < DataDuck::Database
+    def self.load_config!
+      all_sources = DataDuck.config['sources']
+      return if all_sources.nil?
 
-  class Source
+      all_sources.each_key do |source_name|
+        configuration = all_sources[source_name]
+        source_type = configuration['type']
+
+        if source_type == "postgresql"
+          DataDuck.sources[source_name] = DataDuck::PostgresqlSource.new(configuration)
+        elsif source_type == "mysql"
+          DataDuck.sources[source_name] = DataDuck::MysqlSource.new(configuration)
+        else
+          raise ArgumentError.new("Unknown type '#{ source_type }' for source #{ source_name }.")
+        end
+      end
+    end
+
     def self.source_config(name)
       if DataDuck.config['sources'].nil? || DataDuck.config['sources'][name.to_s].nil?
         raise Exception.new("Could not find source #{ name } in source configs.")
@@ -9,25 +26,25 @@ module DataDuck
       DataDuck.config['sources'][name.to_s]
     end
 
-    def self.source(name)
+    def self.source(name, allow_nil = false)
       name = name.to_s
 
       if DataDuck.sources[name]
         return DataDuck.sources[name]
-      end
-
-      configuration = DataDuck::Source.source_config(name)
-      source_type = configuration['type']
-
-      if source_type == "postgresql"
-        DataDuck.sources[name] = DataDuck::PostgresqlSource.new(configuration)
-        return DataDuck.sources[name]
-      elsif source_type == "mysql"
-        DataDuck.sources[name] = DataDuck::MysqlSource.new(configuration)
-        return DataDuck.sources[name]
+      elsif allow_nil
+        return nil
       else
-        raise ArgumentError.new("Unknown type '#{ source_type }' for source #{ name }.")
+        raise Exception.new("Could not find source #{ name } in source configs.")
       end
+    end
+
+    def self.only_source
+      if DataDuck.sources.keys.length != 1
+        raise ArgumentError.new("Must be exactly 1 source.")
+      end
+
+      source_name = DataDuck.sources.keys[0]
+      return DataDuck::Source.source(source_name)
     end
 
     def connection

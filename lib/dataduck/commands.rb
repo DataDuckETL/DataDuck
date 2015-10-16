@@ -32,7 +32,7 @@ module DataDuck
     end
 
     def self.acceptable_commands
-      ['console', 'quickstart']
+      ['console', 'dbconsole', 'quickstart']
     end
 
     def self.route_command(args)
@@ -46,13 +46,38 @@ module DataDuck
         return DataDuck::Commands.help
       end
 
-      DataDuck::Commands.public_send(command)
+      DataDuck::Commands.public_send(command, *args[1..-1])
     end
 
     def self.console
       require "irb"
       ARGV.clear
       IRB.start
+    end
+
+    def self.dbconsole(where = "destination")
+      which_database = nil
+      if where == "destination"
+        which_database = DataDuck::Destination.only_destination
+      elsif where == "source"
+        which_database = DataDuck::Source.only_source
+      else
+        found_source = DataDuck::Source.source(where, true)
+        found_destination = DataDuck::Destination.destination(where, true)
+        if found_source && found_destination
+          raise ArgumentError.new("Ambiguous call to dbconsole for #{ where } since there is both a source and destination named #{ where }.")
+        end
+
+        which_database = found_source if found_source
+        which_database = found_destination if found_destination
+      end
+
+      if which_database.nil?
+        raise ArgumentError.new("Could not find database '#{ where }'")
+      end
+
+      puts "Connecting to #{ where }..."
+      which_database.dbconsole
     end
 
     def self.help

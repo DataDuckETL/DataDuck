@@ -94,6 +94,18 @@ module DataDuck
       return data_string_components.join
     end
 
+    def dbconsole(options = {})
+      args = []
+      args << "--host=#{ @host }"
+      args << "--username=#{ @username }"
+      args << "--dbname=#{ @database }"
+      args << "--port=#{ @port }"
+
+      ENV['PGPASSWORD'] = @password
+
+      self.find_command_and_execute("psql", *args)
+    end
+
     def drop_staging_table!(table)
       self.run_query("DROP TABLE IF EXISTS #{ self.staging_table_name(table) }")
     end
