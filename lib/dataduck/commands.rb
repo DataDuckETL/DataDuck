@@ -32,7 +32,7 @@ module DataDuck
     end
 
     def self.acceptable_commands
-      ['console', 'dbconsole', 'quickstart']
+      ['console', 'dbconsole', 'etl', 'quickstart', 'show']
     end
 
     def self.route_command(args)
@@ -80,8 +80,58 @@ module DataDuck
       which_database.dbconsole
     end
 
+    def self.etl(what = nil)
+      if what.nil?
+        puts "You need to specify a table name or 'all'. Usage: dataduck etl all OR datduck etl my_table_name"
+        return
+      end
+
+      only_destination = DataDuck::Destination.only_destination
+
+      if what == "all"
+        etl = ETL.new(destinations: [only_destination], autoload_tables: true)
+        etl.process!
+      else
+        table_name_camelized = DataDuck::Util.underscore_to_camelcase(what)
+        require DataDuck.project_root + "/src/tables/#{ what }.rb"
+        table_class = Object.const_get(table_name_camelized)
+        if !(table_class <= DataDuck::Table)
+          raise Exception.new("Table class #{ table_name_camelized } must inherit from DataDuck::Table")
+        end
+
+        table = table_class.new
+        etl = ETL.new(destinations: [only_destination], autoload_tables: false, tables: [table])
+        etl.process_table!(table)
+      end
+    end
+
     def self.help
       puts "Usage: dataduck commandname"
+      puts "Commands: #{ acceptable_commands.sort.join(' ') }"
+    end
+
+    def self.show(table_name = nil)
+      if table_name.nil?
+        Dir[DataDuck.project_root + "/src/tables/*.rb"].each do |file|
+          table_name_underscores = file.split("/").last.gsub(".rb", "")
+          table_name_camelized = DataDuck::Util.underscore_to_camelcase(table_name_underscores)
+          require file
+          table = Object.const_get(table_name_camelized)
+          if table <= DataDuck::Table
+            puts table_name_underscores
+          end
+        end
+      else
+        table_name_camelized = DataDuck::Util.underscore_to_camelcase(table_name)
+        require DataDuck.project_root + "/src/tables/#{ table_name }.rb"
+        table_class = Object.const_get(table_name_camelized)
+        if !(table_class <= DataDuck::Table)
+          raise Exception.new("Table class #{ table_name_camelized } must inherit from DataDuck::Table")
+        end
+
+        table = table_class.new
+        table.show
+      end
     end
 
     def self.quickstart

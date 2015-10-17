@@ -2,7 +2,7 @@ require_relative 'destination.rb'
 
 module DataDuck
   class RedshiftDestination < DataDuck::Destination
-    def initialize(config)
+    def initialize(name, config)
       @aws_key = config['aws_key']
       @aws_secret = config['aws_secret']
       @s3_bucket = config['s3_bucket']
@@ -14,6 +14,8 @@ module DataDuck
       @username = config['username']
       @password = config['password']
       @redshift_connection = nil
+
+      super
     end
 
     def connection
@@ -56,7 +58,11 @@ module DataDuck
         "\"#{ name }\" #{ redshift_data_type }"
       end
       props_string = props_array.join(', ')
-      "CREATE TABLE IF NOT EXISTS #{ table_name } (#{ props_string })"
+
+      distribution_clause = table.distribution_key ? "DISTKEY(#{ table.distribution_key })" : ""
+      index_clause = table.indexes.length > 0 ? "INTERLEAVED SORTKEY (#{ table.indexes.join(',') })" : ""
+
+      "CREATE TABLE IF NOT EXISTS #{ table_name } (#{ props_string }) #{ distribution_clause } #{ index_clause }"
     end
 
     def create_output_table_on_data_warehouse!(table)

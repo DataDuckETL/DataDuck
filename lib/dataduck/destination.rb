@@ -9,7 +9,7 @@ module DataDuck
         destination_type = configuration['type']
 
         if destination_type == "redshift"
-          DataDuck.destinations[destination_name] = DataDuck::RedshiftDestination.new(configuration)
+          DataDuck.destinations[destination_name] = DataDuck::RedshiftDestination.new(destination_name, configuration)
         else
           raise ArgumentError.new("Unknown type '#{ destination_type }' for destination #{ destination_name }.")
         end

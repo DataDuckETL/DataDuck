@@ -1,5 +1,11 @@
 module DataDuck
   class Database
+    attr_accessor :name
+
+    def initialize(name, *args)
+      self.name = name
+    end
+
     protected
       def find_command_and_execute(commands, *args)
         # This function was originally sourced from Rails

@@ -4,13 +4,15 @@ require 'sequel'
 
 module DataDuck
   class SqlDbSource < DataDuck::Source
-    def initialize(data)
+    def initialize(name, data)
       @host = data['host']
       @port = data['port']
       @username = data['username']
       @password = data['password']
       @database = data['database']
       @initialized_db_type = data['db_type']
+
+      super
     end
 
     def connection

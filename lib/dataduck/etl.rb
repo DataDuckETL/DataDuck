@@ -11,8 +11,13 @@ module DataDuck
       self.destinations << DataDuck::Destination.destination(destination_name)
     end
 
+    attr_accessor :destinations
+    attr_accessor :tables
+
     def initialize(options = {})
+      self.class.destinations ||= []
       @tables = options[:tables] || []
+      @destinations = options[:destinations] || []
 
       @autoload_tables = options[:autoload_tables].nil? ? true : options[:autoload_tables]
       if @autoload_tables
@@ -31,13 +36,33 @@ module DataDuck
     def process!
       DataDuck::Logs.info "Processing ETL..."
 
+      destinations_to_use = []
+      destinations_to_use = destinations_to_use.concat(self.class.destinations)
+      destinations_to_use = destinations_to_use.concat(self.destinations)
+      destinations_to_use.uniq!
+
       @tables.each do |table_class|
         table_to_etl = table_class.new
         table_to_etl.extract!
         table_to_etl.transform!
-        self.class.destinations.each do |destination|
+        destinations_to_use.each do |destination|
           destination.load_table!(table_to_etl)
         end
+      end
+    end
+
+    def process_table!(table)
+      DataDuck::Logs.info "Processing ETL for table #{ table.name }..."
+
+      destinations_to_use = []
+      destinations_to_use = destinations_to_use.concat(self.class.destinations)
+      destinations_to_use = destinations_to_use.concat(self.destinations)
+      destinations_to_use.uniq!
+
+      table.extract!
+      table.transform!
+      destinations_to_use.each do |destination|
+        destination.load_table!(table)
       end
     end
   end

@@ -46,12 +46,12 @@ module DataDuck
       self.class.actions
     end
 
-    def output_schema
-      self.class.output_schema
-    end
-
-    def output_column_names
-      self.class.output_schema.keys.sort
+    def distribution_key
+      if self.output_column_names.include?("id")
+        "id"
+      else
+        nil
+      end
     end
 
     def extract!
@@ -73,6 +73,37 @@ module DataDuck
         query
       else
         "SELECT \"#{ source_spec[:columns].sort.join('","') }\" FROM #{ source_spec[:table_name] }"
+      end
+    end
+
+    def indexes
+      which_columns = []
+      which_columns << "id" if self.output_column_names.include?("id")
+      which_columns << "created_at" if self.output_column_names.include?("created_at")
+      which_columns
+    end
+
+    def output_schema
+      self.class.output_schema
+    end
+
+    def output_column_names
+      self.class.output_schema.keys.sort.map(&:to_s)
+    end
+
+    def show
+      puts "Table #{ self.name }"
+      self.class.sources.each do |source_spec|
+        puts "\nSources from #{ source_spec[:table_name] || source_spec[:query] } on #{ source_spec[:source].name }"
+        source_spec[:columns].each do |col_name|
+          puts "  #{ col_name }"
+        end
+      end
+
+      puts "\nOutputs "
+      num_separators = self.output_schema.keys.map { |key| key.length }.max
+      self.output_schema.each_pair do |name, datatype|
+        puts "  #{ name }#{ ' ' * (num_separators + 2 - name.length) }#{ datatype }"
       end
     end
 

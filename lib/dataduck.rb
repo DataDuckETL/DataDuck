@@ -29,4 +29,10 @@ module DataDuck
 
   DataDuck::Source.load_config!
   DataDuck::Destination.load_config!
+
+  Dir[DataDuck.project_root + "/src/tables/*.rb"].each do |file|
+    table_name_underscores = file.split("/").last.gsub(".rb", "")
+    table_name_camelized = DataDuck::Util.underscore_to_camelcase(table_name_underscores)
+    require file
+  end
 end
