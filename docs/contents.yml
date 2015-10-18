@@ -2,5 +2,12 @@
   "Welcome": README
   "Getting Started": getting_started
 
+"Commands":
+  "console": console
+  "dbconsole": dbconsole
+  "etl": etl
+  "quickstart": quickstart
+  "show": show
+
 "Tables":
   "The Table Class": README
