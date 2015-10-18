@@ -37,6 +37,10 @@ module DataDuck
     end
 
     def query(sql)
+      if self.is_mutating_sql?(sql)
+        raise ArgumentError.new("Database #{ self.name } must not run mutating sql: #{ sql }")
+      end
+
       self.connection.fetch(sql).all
     end
   end

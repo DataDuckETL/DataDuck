@@ -47,14 +47,6 @@ module DataDuck
       return DataDuck::Source.source(source_name)
     end
 
-    def connection
-      raise Exception.new("Must implement connection in subclass.")
-    end
-
-    def query
-      raise Exception.new("Must implement query in subclass.")
-    end
-
     def schema(table_name)
       self.connection.schema(table_name)
     end

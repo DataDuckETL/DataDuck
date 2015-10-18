@@ -29,7 +29,7 @@ module DataDuck
     def copy_query(table, s3_path)
       properties_joined_string = "\"#{ table.output_column_names.join('","') }\""
       query_fragments = []
-      query_fragments << "COPY #{ self.staging_table_name(table) } (#{ properties_joined_string })"
+      query_fragments << "COPY #{ table.staging_name } (#{ properties_joined_string })"
       query_fragments << "FROM '#{ s3_path }'"
       query_fragments << "CREDENTIALS 'aws_access_key_id=#{ @aws_key };aws_secret_access_key=#{ @aws_secret }'"
       query_fragments << "REGION '#{ @s3_region }'"
@@ -39,13 +39,13 @@ module DataDuck
     end
 
     def create_columns_on_data_warehouse!(table)
-      columns = get_columns_in_data_warehouse(table)
+      columns = get_columns_in_data_warehouse(table.building_name)
       column_names = columns.map { |col| col[:name].to_s }
       table.output_schema.map do |name, data_type|
         if !column_names.include?(name.to_s)
           redshift_data_type = data_type.to_s
           redshift_data_type = 'varchar(255)' if redshift_data_type == 'string'
-          self.run_query("ALTER TABLE #{ table.name } ADD #{ name } #{ redshift_data_type }")
+          self.query("ALTER TABLE #{ table.building_name } ADD #{ name } #{ redshift_data_type }")
         end
       end
     end
@@ -65,15 +65,14 @@ module DataDuck
       "CREATE TABLE IF NOT EXISTS #{ table_name } (#{ props_string }) #{ distribution_clause } #{ index_clause }"
     end
 
-    def create_output_table_on_data_warehouse!(table)
-      self.run_query(self.create_table_query(table))
+    def create_output_tables!(table)
+      self.query(self.create_table_query(table, table.building_name))
       self.create_columns_on_data_warehouse!(table)
-    end
 
-    def create_staging_table!(table)
-      table_name = self.staging_table_name(table)
-      self.drop_staging_table!(table)
-      self.run_query(self.create_table_query(table, table_name))
+      if table.building_name != table.staging_name
+        self.drop_staging_table!(table)
+        self.query(self.create_table_query(table, table.staging_name))
+      end
     end
 
     def data_as_csv_string(data, property_names)
@@ -113,12 +112,12 @@ module DataDuck
     end
 
     def drop_staging_table!(table)
-      self.run_query("DROP TABLE IF EXISTS #{ self.staging_table_name(table) }")
+      self.query("DROP TABLE IF EXISTS #{ table.staging_name }")
     end
 
-    def get_columns_in_data_warehouse(table)
-      query = "SELECT pg_table_def.column as name, type as data_type, distkey, sortkey FROM pg_table_def WHERE tablename='#{ table.name }'"
-      results = self.run_query(query)
+    def get_columns_in_data_warehouse(table_name)
+      cols_query = "SELECT pg_table_def.column AS name, type AS data_type, distkey, sortkey FROM pg_table_def WHERE tablename='#{ table_name }'"
+      results = self.query(cols_query)
 
       columns = []
       results.each do |result|
@@ -126,7 +125,7 @@ module DataDuck
             name: result[:name],
             data_type: result[:data_type],
             distkey: result[:distkey],
-            sortkey: result[:sortkey]
+            sortkey: result[:sortkey],
         }
       end
 
@@ -134,20 +133,25 @@ module DataDuck
     end
 
     def merge_from_staging!(table)
+      if table.staging_name == table.building_name
+        return
+      end
+
       # Following guidelines in http://docs.aws.amazon.com/redshift/latest/dg/merge-examples.html
-      staging_name = self.staging_table_name(table)
-      delete_query = "DELETE FROM #{ table.name } USING #{ staging_name } WHERE #{ table.name }.id = #{ staging_name }.id" # TODO allow custom or multiple keys
-      self.run_query(delete_query)
-      insert_query = "INSERT INTO #{ table.name } (\"#{ table.output_column_names.join('","') }\") SELECT \"#{ table.output_column_names.join('","') }\" FROM #{ staging_name }"
-      self.run_query(insert_query)
+      staging_name = table.staging_name
+      building_name = table.building_name
+      delete_query = "DELETE FROM #{ building_name } USING #{ staging_name } WHERE #{ building_name }.id = #{ staging_name }.id" # TODO allow custom or multiple keys
+      self.query(delete_query)
+      insert_query = "INSERT INTO #{ building_name } (\"#{ table.output_column_names.join('","') }\") SELECT \"#{ table.output_column_names.join('","') }\" FROM #{ staging_name }"
+      self.query(insert_query)
     end
 
-    def run_query(sql)
+    def query(sql)
       self.connection[sql].map { |elem| elem }
     end
 
-    def staging_table_name(table)
-      "zz_dataduck_#{ table.name }"
+    def table_names
+      self.query("SELECT DISTINCT(tablename) AS name FROM pg_table_def WHERE schemaname='public' ORDER BY name").map { |item| item[:name] }
     end
 
     def upload_table_to_s3!(table)
@@ -162,14 +166,28 @@ module DataDuck
       return s3_obj
     end
 
+    def finish_fully_reloading_table!(table)
+      self.query("DROP TABLE IF EXISTS dataduck_zz_old_#{ table.name }")
+
+      table_already_exists = self.table_names.include?(table.name)
+      if table_already_exists
+        self.query("ALTER TABLE #{ table.name } RENAME TO dataduck_zz_old_#{ table.name }")
+      end
+
+      self.query("ALTER TABLE #{ table.staging_name } RENAME TO #{ table.name }")
+      self.query("DROP TABLE IF EXISTS dataduck_zz_old_#{ table.name }")
+    end
+
     def load_table!(table)
       DataDuck::Logs.info "Loading table #{ table.name }..."
       s3_object = self.upload_table_to_s3!(table)
-      self.create_staging_table!(table)
-      self.create_output_table_on_data_warehouse!(table)
-      self.run_query(self.copy_query(table, s3_object.s3_path))
-      self.merge_from_staging!(table)
-      self.drop_staging_table!(table)
+      self.create_output_tables!(table)
+      self.query(self.copy_query(table, s3_object.s3_path))
+
+      if table.staging_name != table.building_name
+        self.merge_from_staging!(table)
+        self.drop_staging_table!(table)
+      end
     end
 
     def self.value_to_string(value)

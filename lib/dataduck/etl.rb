@@ -43,11 +43,7 @@ module DataDuck
 
       @tables.each do |table_class|
         table_to_etl = table_class.new
-        table_to_etl.extract!
-        table_to_etl.transform!
-        destinations_to_use.each do |destination|
-          destination.load_table!(table_to_etl)
-        end
+        table_to_etl.etl!(destinations_to_use)
       end
     end
 
@@ -59,11 +55,7 @@ module DataDuck
       destinations_to_use = destinations_to_use.concat(self.destinations)
       destinations_to_use.uniq!
 
-      table.extract!
-      table.transform!
-      destinations_to_use.each do |destination|
-        destination.load_table!(table)
-      end
+      table.etl!(destinations_to_use)
     end
   end
 end

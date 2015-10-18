@@ -6,7 +6,20 @@ module DataDuck
       self.name = name
     end
 
+    def connection
+      raise Exception.new("Must implement connection in subclass.")
+    end
+
+    def query
+      raise Exception.new("Must implement query in subclass.")
+    end
+
+    def table_names
+      raise Exception.new("Must implement query in subclass.")
+    end
+
     protected
+
       def find_command_and_execute(commands, *args)
         # This function was originally sourced from Rails
         # https://github.com/rails/rails
@@ -50,5 +63,19 @@ module DataDuck
           abort("Couldn't find command: #{commands.join(', ')}. Check your $PATH and try again.")
         end
       end
+
+      def is_mutating_sql?(sql)
+        # This method is not all exhaustive, and is not meant to be necessarily relied on, but is a
+        # sanity check that can be used to ensure certain sql is not mutating.
+
+        return true if sql.downcase.start_with?("drop table")
+        return true if sql.downcase.start_with?("create table")
+        return true if sql.downcase.start_with?("delete from")
+        return true if sql.downcase.start_with?("insert into")
+        return true if sql.downcase.start_with?("alter table")
+
+        false
+      end
+
   end
 end
