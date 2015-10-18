@@ -7,7 +7,7 @@ This will connect you with the destination (e.g. Redshift):
 
 `$ dataduck dbconsole`
 
-You can also use on of these:
+You can also use one of these:
 
 `$ dataduck dbconsole source`
 
