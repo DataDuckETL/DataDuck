@@ -106,7 +106,6 @@ module DataDuck
       self.class.sources.each do |source_spec|
         source = source_spec[:source]
         my_query = self.extract_query(source_spec, destination)
-        puts my_query
         results = source.query(my_query)
         self.data = results
       end
