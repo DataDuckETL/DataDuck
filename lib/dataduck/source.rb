@@ -1,3 +1,5 @@
+require_relative 'database'
+
 module DataDuck
   class Source < DataDuck::Database
     def self.load_config!

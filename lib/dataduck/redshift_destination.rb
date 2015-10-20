@@ -1,4 +1,4 @@
-require_relative 'destination.rb'
+require_relative 'destination'
 
 module DataDuck
   class RedshiftDestination < DataDuck::Destination

@@ -14,4 +14,4 @@ gem push dataduck-VERSION.gem
 
 Use something like this:
 
-gem 'dataduck', '0.3.0', path: '/Users/jrp/projects/dataduck'
+gem 'dataduck', '0.5.1', path: '/Users/jrp/projects/dataduck'
