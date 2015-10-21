@@ -18,5 +18,9 @@ module DataDuck
 
       self.find_command_and_execute("mysql", *args)
     end
+
+    def escape_char
+      '`'
+    end
   end
 end

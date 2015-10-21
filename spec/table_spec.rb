@@ -1,6 +1,7 @@
 describe DataDuck::Table do
+  class TestSomeTable < DataDuck::Table; end
+
   describe "self.source" do
-    class TestSomeTable < DataDuck::Table; end
 
     before(:each) do
       TestSomeTable.sources = []
@@ -30,6 +31,41 @@ describe DataDuck::Table do
       expect(TestSomeTable.sources[0][:source]).to eq(:fake_source)
       expect(TestSomeTable.sources[0][:columns]).to eq(['prop1', 'prop2'])
       expect(TestSomeTable.sources[0][:table_name]).to eq('test_some_table')
+    end
+  end
+
+  describe "extract_query" do
+    it "correctly outputs a normal select sql query" do
+      table = TestSomeTable.new
+      result = table.extract_query({
+          columns: ["id", "created_at", "updated_at", "foo", "bar"],
+          table_name: "test_some_table",
+          source: DataDuck::Source.new('test', {})
+      })
+
+      expect(result).to eq("SELECT bar,created_at,foo,id,updated_at FROM test_some_table")
+    end
+
+    it "correctly outputs a normal select sql query for mysql dbs" do
+      table = TestSomeTable.new
+      result = table.extract_query({
+              columns: ["id", "created_at", "updated_at", "foo", "bar"],
+              table_name: "test_some_table",
+              source: DataDuck::MysqlSource.new('test', {})
+          })
+
+      expect(result).to eq("SELECT `bar`,`created_at`,`foo`,`id`,`updated_at` FROM test_some_table")
+    end
+
+    it "correctly outputs a normal select sql query for postgresql dbs" do
+      table = TestSomeTable.new
+      result = table.extract_query({
+              columns: ["id", "created_at", "updated_at", "foo", "bar"],
+              table_name: "test_some_table",
+              source: DataDuck::PostgresqlSource.new('test', {})
+          })
+
+      expect(result).to eq("SELECT \"bar\",\"created_at\",\"foo\",\"id\",\"updated_at\" FROM test_some_table")
     end
   end
 end

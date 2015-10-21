@@ -49,6 +49,10 @@ module DataDuck
       return DataDuck::Source.source(source_name)
     end
 
+    def escape_char
+      '' # implement in subclass, e.g. " in postgresql and ` in mysql
+    end
+
     def schema(table_name)
       self.connection.schema(table_name)
     end

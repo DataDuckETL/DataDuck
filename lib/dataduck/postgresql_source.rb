@@ -25,5 +25,9 @@ module DataDuck
       size_in_gb = size_in_bytes / 1_000_000_000.0
       size_in_gb
     end
+
+    def escape_char
+      '"'
+    end
   end
 end

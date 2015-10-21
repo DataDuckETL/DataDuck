@@ -43,8 +43,7 @@ module DataDuck
       column_names = columns.map { |col| col[:name].to_s }
       table.output_schema.map do |name, data_type|
         if !column_names.include?(name.to_s)
-          redshift_data_type = data_type.to_s
-          redshift_data_type = 'varchar(255)' if redshift_data_type == 'string'
+          redshift_data_type = self.type_to_redshift_type(data_type)
           self.query("ALTER TABLE #{ table.building_name } ADD #{ name } #{ redshift_data_type }")
         end
       end
@@ -53,8 +52,7 @@ module DataDuck
     def create_table_query(table, table_name = nil)
       table_name ||= table.name
       props_array = table.output_schema.map do |name, data_type|
-        redshift_data_type = data_type.to_s
-        redshift_data_type = 'varchar(255)' if redshift_data_type == 'string'
+        redshift_data_type = self.type_to_redshift_type(data_type)
         "\"#{ name }\" #{ redshift_data_type }"
       end
       props_string = props_array.join(', ')
@@ -97,6 +95,20 @@ module DataDuck
       end
 
       return data_string_components.join
+    end
+
+    def type_to_redshift_type(which_type)
+      which_type = which_type.to_s
+
+      if ["string", "text", "bigtext"].include?(which_type)
+        {
+            "string" => "varchar(255)",
+            "text" => "varchar(8191)",
+            "bigtext" => "varchar(65535)", # Redshift maximum
+        }[which_type]
+      else
+        which_type
+      end
     end
 
     def dbconsole(options = {})
@@ -147,6 +159,7 @@ module DataDuck
     end
 
     def query(sql)
+      Logs.debug("SQL executing on #{ self.name }:\n  " + sql)
       self.connection[sql].map { |elem| elem }
     end
 

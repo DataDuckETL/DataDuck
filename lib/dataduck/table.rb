@@ -115,8 +115,10 @@ module DataDuck
     end
 
     def extract_query(source_spec, destination = nil)
+      escape_char = source_spec[:source].escape_char
+
       base_query = source_spec.has_key?(:query) ? source_spec[:query] :
-         "SELECT \"#{ source_spec[:columns].sort.join('","') }\" FROM #{ source_spec[:table_name] }"
+         "SELECT #{ escape_char }#{ source_spec[:columns].sort.join(escape_char + ',' + escape_char) }#{ escape_char } FROM #{ source_spec[:table_name] }"
 
       extract_by_clause = ""
       limit_clause = ""
@@ -167,11 +169,11 @@ module DataDuck
     end
 
     def output_schema
-      self.class.output_schema
+      self.class.output_schema || {}
     end
 
     def output_column_names
-      self.class.output_schema.keys.sort.map(&:to_s)
+      self.output_schema.keys.sort.map(&:to_s)
     end
 
     def show

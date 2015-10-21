@@ -1,4 +1,5 @@
-require_relative 'source.rb'
+require_relative 'source'
+require_relative 'logs'
 
 require 'sequel'
 
@@ -29,7 +30,11 @@ module DataDuck
     def db_type
       return @initialized_db_type if @initialized_db_type
 
-      raise Exception.new("Abstract method db_type must be overwritten by subclass, or passed as data when initializing.")
+      raise NotImplementedError.new("Abstract method db_type must be overwritten by subclass, or passed as data when initializing.")
+    end
+
+    def escape_char
+      raise NotImplementedError.new("Abstract method escape_char must be overwritten by subclass.")
     end
 
     def table_names
@@ -41,6 +46,7 @@ module DataDuck
         raise ArgumentError.new("Database #{ self.name } must not run mutating sql: #{ sql }")
       end
 
+      Logs.debug("SQL executing on #{ self.name }:\n  " + sql)
       self.connection.fetch(sql).all
     end
   end
