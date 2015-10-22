@@ -180,15 +180,15 @@ module DataDuck
     end
 
     def finish_fully_reloading_table!(table)
-      self.query("DROP TABLE IF EXISTS dataduck_zz_old_#{ table.name }")
+      self.query("DROP TABLE IF EXISTS zz_dataduck_old_#{ table.name }")
 
       table_already_exists = self.table_names.include?(table.name)
       if table_already_exists
-        self.query("ALTER TABLE #{ table.name } RENAME TO dataduck_zz_old_#{ table.name }")
+        self.query("ALTER TABLE #{ table.name } RENAME TO zz_dataduck_old_#{ table.name }")
       end
 
       self.query("ALTER TABLE #{ table.staging_name } RENAME TO #{ table.name }")
-      self.query("DROP TABLE IF EXISTS dataduck_zz_old_#{ table.name }")
+      self.query("DROP TABLE IF EXISTS zz_dataduck_old_#{ table.name }")
     end
 
     def load_table!(table)
