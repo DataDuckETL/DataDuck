@@ -125,7 +125,8 @@ module DataDuck
 
       if self.extract_by_column
         if destination.table_names.include?(self.building_name)
-          extract_by_value = destination.query("SELECT MAX(#{ self.extract_by_column }) AS val FROM #{ self.building_name }").first
+          extract_by_column_without_table = self.extract_by_column.include?(".") ? self.extract_by_column.split(".").last : self.extract_by_column
+          extract_by_value = destination.query("SELECT MAX(#{ extract_by_column_without_table }) AS val FROM #{ self.building_name }").first
           extract_by_value = extract_by_value.nil? ? nil : extract_by_value[:val]
 
           if extract_by_value
