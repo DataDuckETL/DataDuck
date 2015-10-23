@@ -120,8 +120,8 @@ module DataDuck
       base_query = source_spec.has_key?(:query) ? source_spec[:query] :
          "SELECT #{ escape_char }#{ source_spec[:columns].sort.join(escape_char + ',' + escape_char) }#{ escape_char } FROM #{ source_spec[:table_name] }"
 
-      extract_by_clause = ""
-      limit_clause = ""
+      extract_part = ""
+      limit_part = self.limit_clause
 
       if self.extract_by_column
         if destination.table_names.include?(self.building_name)
@@ -129,15 +129,27 @@ module DataDuck
           extract_by_value = destination.query("SELECT MAX(#{ extract_by_column_without_table }) AS val FROM #{ self.building_name }").first
           extract_by_value = extract_by_value.nil? ? nil : extract_by_value[:val]
 
-          if extract_by_value
-            extract_by_clause = "WHERE #{ self.extract_by_column } >= '#{ extract_by_value }'"
-          end
+          extract_part = self.extract_by_clause(extract_by_value)
         end
-
-        limit_clause = self.batch_size ? "ORDER BY #{ self.extract_by_column } LIMIT #{ self.batch_size }" : ""
       end
 
-      [base_query, extract_by_clause, limit_clause].join(' ').strip
+      [base_query, extract_part, limit_part].join(' ').strip
+    end
+
+    def extract_by_clause(value)
+      if value
+        "WHERE #{ self.extract_by_column } >= '#{ value }'"
+      else
+        ""
+      end
+    end
+
+    def limit_clause
+      if self.extract_by_column && self.batch_size
+        "ORDER BY #{ self.extract_by_column } LIMIT #{ self.batch_size }"
+      else
+        ""
+      end
     end
 
     def indexes
