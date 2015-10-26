@@ -1,4 +1,5 @@
 require 'aws-sdk'
+require_relative 'logs'
 
 module DataDuck
   class S3Object
@@ -12,7 +13,24 @@ module DataDuck
       @region = region
     end
 
+    def delete!
+      Logs.debug("Deleting S3 file #{ self.s3_path }...")
+
+      s3 = Aws::S3::Client.new(
+          region: @region,
+          access_key_id: @aws_key,
+          secret_access_key: @aws_secret,
+      )
+
+      s3.delete_object({
+          bucket: @bucket,
+          key: self.full_path,
+      })
+    end
+
     def upload!
+      Logs.debug("Uploading S3 file #{ self.s3_path }...")
+
       s3 = Aws::S3::Client.new(
           region: @region,
           access_key_id: @aws_key,

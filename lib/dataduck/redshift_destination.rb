@@ -196,6 +196,7 @@ module DataDuck
       s3_object = self.upload_table_to_s3!(table)
       self.create_output_tables!(table)
       self.query(self.copy_query(table, s3_object.s3_path))
+      s3_object.delete!
 
       if table.staging_name != table.building_name
         self.merge_from_staging!(table)

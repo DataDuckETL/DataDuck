@@ -1,4 +1,4 @@
-require_relative 'redshift_destination.rb'
+require_relative 'redshift_destination'
 
 module DataDuck
   class ETL
