@@ -34,7 +34,7 @@ module DataDuck
     end
 
     def process!
-      DataDuck::Logs.info "Processing ETL..."
+      Logs.info("Processing ETL on pid #{ Process.pid }...")
 
       destinations_to_use = []
       destinations_to_use = destinations_to_use.concat(self.class.destinations)
@@ -48,7 +48,7 @@ module DataDuck
     end
 
     def process_table!(table)
-      DataDuck::Logs.info "Processing ETL for table #{ table.name }..."
+      Logs.info("Processing ETL for table #{ table.name } on pid #{ Process.pid }...")
 
       destinations_to_use = []
       destinations_to_use = destinations_to_use.concat(self.class.destinations)
