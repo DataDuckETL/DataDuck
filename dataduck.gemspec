@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.3"
 
+  spec.add_runtime_dependency "dotenv", '~> 2.0'
   spec.add_runtime_dependency "sequel", '~> 4.19'
   spec.add_runtime_dependency "pg", '~> 0.16'
   spec.add_runtime_dependency "mysql", "~> 2.9"

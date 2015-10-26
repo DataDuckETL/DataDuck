@@ -1,3 +1,6 @@
+require 'dotenv'
+Dotenv.load
+
 require 'yaml'
 
 Dir[File.dirname(__FILE__) + '/helpers/*.rb'].each do |file|
