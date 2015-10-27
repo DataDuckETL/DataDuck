@@ -2,6 +2,11 @@ require 'fileutils'
 
 module DataDuck
   module Util
+    def Util.deep_merge(first, second)
+      merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : v2 }
+      first.merge(second, &merger)
+    end
+
     def Util.ensure_path_exists!(full_path)
       split_paths = full_path.split('/')
       just_file_path = split_paths.pop

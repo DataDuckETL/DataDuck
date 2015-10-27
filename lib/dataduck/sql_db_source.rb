@@ -5,13 +5,20 @@ require 'sequel'
 
 module DataDuck
   class SqlDbSource < DataDuck::Source
-    def initialize(name, data)
-      @host = data['host']
-      @port = data['port']
-      @username = data['username']
-      @password = data['password']
-      @database = data['database']
-      @initialized_db_type = data['db_type']
+    attr_accessor :host
+    attr_accessor :port
+    attr_accessor :username
+    attr_accessor :password
+    attr_accessor :database
+
+    def initialize(name, config)
+      load_value('host', name, config)
+      load_value('port', name, config)
+      load_value('username', name, config)
+      load_value('password', name, config)
+      load_value('database', name, config)
+
+      @initialized_db_type = config['db_type']
 
       super
     end
@@ -19,11 +26,11 @@ module DataDuck
     def connection
       @connection ||= Sequel.connect(
         adapter: self.db_type,
-        user: @username,
-        host: @host,
-        database: @database,
-        password: @password,
-        port: @port
+        user: self.username,
+        host: self.host,
+        database: self.database,
+        password: self.password,
+        port: self.port
       )
     end
 

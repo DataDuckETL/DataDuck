@@ -10,11 +10,11 @@ module DataDuck
 
     def dbconsole(options = {})
       args = []
-      args << "--host=#{ @host }"
-      args << "--user=#{ @username }"
-      args << "--database=#{ @database }"
-      args << "--port=#{ @port }"
-      args << "--password=#{ @password }"
+      args << "--host=#{ self.host }"
+      args << "--user=#{ self.username }"
+      args << "--database=#{ self.database }"
+      args << "--port=#{ self.port }"
+      args << "--password=#{ self.password }"
 
       self.find_command_and_execute("mysql", *args)
     end

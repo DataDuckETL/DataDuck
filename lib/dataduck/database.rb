@@ -20,12 +20,18 @@ module DataDuck
 
     protected
 
+      def load_value(prop_name, db_name, config)
+        self.send("#{ prop_name }=", config[prop_name] || ENV["#{ db_name }_#{ prop_name }"])
+      end
+
       def find_command_and_execute(commands, *args)
         # This function was originally sourced from Rails
         # https://github.com/rails/rails
         #
-        # Licensed under the MIT license
+        # This function was licensed under the MIT license
         # http://opensource.org/licenses/MIT
+        #
+        # The license asks to include the following with the source code:
         #
         # Permission is hereby granted, free of charge, to any person obtaining a copy
         # of this software and associated documentation files (the "Software"), to deal
@@ -68,11 +74,11 @@ module DataDuck
         # This method is not all exhaustive, and is not meant to be necessarily relied on, but is a
         # sanity check that can be used to ensure certain sql is not mutating.
 
-        return true if sql.downcase.start_with?("drop table")
-        return true if sql.downcase.start_with?("create table")
-        return true if sql.downcase.start_with?("delete from")
-        return true if sql.downcase.start_with?("insert into")
-        return true if sql.downcase.start_with?("alter table")
+        return true if sql.downcase.strip.start_with?("drop table")
+        return true if sql.downcase.strip.start_with?("create table")
+        return true if sql.downcase.strip.start_with?("delete from")
+        return true if sql.downcase.strip.start_with?("insert into")
+        return true if sql.downcase.strip.start_with?("alter table")
 
         false
       end

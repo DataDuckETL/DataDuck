@@ -224,11 +224,5 @@ module DataDuck
       string_value.gsub!('"', '""')
       return string_value
     end
-
-    protected
-
-      def load_value(prop_name, db_name, config)
-        self.send("#{ prop_name }=", config[prop_name] || ENV["#{ db_name }_#{ prop_name }"])
-      end
   end
 end

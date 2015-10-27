@@ -10,12 +10,12 @@ module DataDuck
 
     def dbconsole(options = {})
       args = []
-      args << "--host=#{ @host }"
-      args << "--username=#{ @username }"
-      args << "--dbname=#{ @database }"
-      args << "--port=#{ @port }"
+      args << "--host=#{ self.host }"
+      args << "--username=#{ self.username }"
+      args << "--dbname=#{ self.database }"
+      args << "--port=#{ self.port }"
 
-      ENV['PGPASSWORD'] = @password
+      ENV['PGPASSWORD'] = self.password
 
       self.find_command_and_execute("psql", *args)
     end

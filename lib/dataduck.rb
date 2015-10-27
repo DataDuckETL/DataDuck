@@ -37,10 +37,13 @@ module DataDuck
   create_module_var("project_root", detect_project_root)
 
   create_module_var("config", {})
-
-  dd_env_path = DataDuck.project_root + "/config/secret/#{ ENV['DATADUCK_ENV'] }.yml"
-  env_config = File.exist?(dd_env_path) ? YAML.load_file(dd_env_path) : {}
-  DataDuck.config.merge!(env_config)
+  configs_to_load = ["/config/base.yml", "/config/#{ ENV['DATADUCK_ENV'] }.yml",
+    "/config/secret/base.yml", "/config/secret/#{ ENV['DATADUCK_ENV'] }.yml"]
+  configs_to_load.each do |relative_path|
+    config_path = DataDuck.project_root + relative_path
+    loaded_config = File.exist?(config_path) ? YAML.load_file(config_path) : {}
+    DataDuck.config = Util.deep_merge(DataDuck.config, loaded_config)
+  end
 
   create_module_var("sources", {})
   create_module_var("destinations", {})
