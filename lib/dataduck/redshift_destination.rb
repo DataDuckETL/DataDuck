@@ -2,24 +2,36 @@ require_relative 'destination'
 
 module DataDuck
   class RedshiftDestination < DataDuck::Destination
+    attr_accessor :aws_key
+    attr_accessor :aws_secret
+    attr_accessor :s3_bucket
+    attr_accessor :s3_region
+    attr_accessor :host
+    attr_accessor :port
+    attr_accessor :database
+    attr_accessor :schema
+    attr_accessor :username
+    attr_accessor :password
+
     def initialize(name, config)
-      @aws_key = config['aws_key']
-      @aws_secret = config['aws_secret']
-      @s3_bucket = config['s3_bucket']
-      @s3_region = config['s3_region']
-      @host = config['host']
-      @port = config['port']
-      @database = config['database']
-      @schema = config['schema']
-      @username = config['username']
-      @password = config['password']
+      load_value('aws_key', name, config)
+      load_value('aws_secret', name, config)
+      load_value('s3_bucket', name, config)
+      load_value('s3_region', name, config)
+      load_value('host', name, config)
+      load_value('port', name, config)
+      load_value('database', name, config)
+      load_value('schema', name, config)
+      load_value('username', name, config)
+      load_value('password', name, config)
+
       @redshift_connection = nil
 
       super
     end
 
     def connection
-      @redshift_connection ||= Sequel.connect("redshift://#{ @username }:#{ @password }@#{ @host }:#{ @port }/#{ @database }" +
+      @redshift_connection ||= Sequel.connect("redshift://#{ self.username }:#{ self.password }@#{ self.host }:#{ self.port }/#{ self.database }" +
               "?force_standard_strings=f",
           :client_min_messages => '',
           :force_standard_strings => false
@@ -31,8 +43,8 @@ module DataDuck
       query_fragments = []
       query_fragments << "COPY #{ table.staging_name } (#{ properties_joined_string })"
       query_fragments << "FROM '#{ s3_path }'"
-      query_fragments << "CREDENTIALS 'aws_access_key_id=#{ @aws_key };aws_secret_access_key=#{ @aws_secret }'"
-      query_fragments << "REGION '#{ @s3_region }'"
+      query_fragments << "CREDENTIALS 'aws_access_key_id=#{ self.aws_key };aws_secret_access_key=#{ self.aws_secret }'"
+      query_fragments << "REGION '#{ self.s3_region }'"
       query_fragments << "CSV TRUNCATECOLUMNS ACCEPTINVCHARS EMPTYASNULL"
       query_fragments << "DATEFORMAT 'auto'"
       return query_fragments.join(" ")
@@ -113,12 +125,12 @@ module DataDuck
 
     def dbconsole(options = {})
       args = []
-      args << "--host=#{ @host }"
-      args << "--username=#{ @username }"
-      args << "--dbname=#{ @database }"
-      args << "--port=#{ @port }"
+      args << "--host=#{ self.host }"
+      args << "--username=#{ self.username }"
+      args << "--dbname=#{ self.database }"
+      args << "--port=#{ self.port }"
 
-      ENV['PGPASSWORD'] = @password
+      ENV['PGPASSWORD'] = self.password
 
       self.find_command_and_execute("psql", *args)
     end
@@ -173,8 +185,8 @@ module DataDuck
 
       table_csv = self.data_as_csv_string(table.data, table.output_column_names)
 
-      s3_obj = S3Object.new(filepath, table_csv, @aws_key, @aws_secret,
-          @s3_bucket, @s3_region)
+      s3_obj = S3Object.new(filepath, table_csv, self.aws_key, self.aws_secret,
+          self.s3_bucket, self.s3_region)
       s3_obj.upload!
       return s3_obj
     end
@@ -212,5 +224,11 @@ module DataDuck
       string_value.gsub!('"', '""')
       return string_value
     end
+
+    protected
+
+      def load_value(prop_name, db_name, config)
+        self.send("#{ prop_name }=", config[prop_name] || ENV["#{ db_name }_#{ prop_name }"])
+      end
   end
 end
