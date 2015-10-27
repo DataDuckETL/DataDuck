@@ -13,7 +13,7 @@ Usage to show info for just one table:
 $ dataduck show users
 Table users
 
-Sources from users on my_database
+Sources from users on source1
   created_at
   updated_at
   id

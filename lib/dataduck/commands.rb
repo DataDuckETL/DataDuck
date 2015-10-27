@@ -170,7 +170,7 @@ module DataDuck
           postgresql: DataDuck::PostgresqlSource,
       }[db_type]
 
-      db_source = db_class.new({
+      db_source = db_class.new("source1", {
           'db_type' => db_type.to_s,
           'host' => source_host,
           'database' => source_database,
@@ -189,20 +189,17 @@ module DataDuck
 
       config_obj = {
         'sources' => {
-          'my_database' => {
+          'source1' => {
             'type' => db_type.to_s,
             'host' => source_host,
             'database' => source_database,
             'port' => source_port,
             'username' => source_username,
-            'password' => source_password,
           }
         },
         'destinations' => {
-          'my_destination' => {
+          'destination1' => {
             'type'  => 'redshift',
-            'aws_key'  => 'YOUR_AWS_KEY',
-            'aws_secret'  => 'YOUR_AWS_SECRET',
             's3_bucket'  => 'YOUR_BUCKET',
             's3_region'  => 'YOUR_BUCKET_REGION',
             'host'  => 'redshift.somekeygoeshere.us-west-2.redshift.amazonaws.com',
@@ -210,28 +207,32 @@ module DataDuck
             'database'  => 'main',
             'schema'  => 'public',
             'username'  => 'YOUR_UESRNAME',
-            'password'  => 'YOUR_PASSWORD',
           }
         }
       }
+      DataDuck::Commands.quickstart_save_file("#{ DataDuck.project_root }/config/base.yml", config_obj.to_yaml)
 
-      DataDuck::Commands.quickstart_save_file("#{ DataDuck.project_root }/config/secret/#{ DataDuck.environment }.yml", config_obj.to_yaml)
-      DataDuck::Commands.quickstart_save_main
+      DataDuck::Commands.quickstart_save_file("#{ DataDuck.project_root }/.env", """
+destination1_aws_key=AWS_KEY_GOES_HERE
+destination1_aws_secret=AWS_SECRET_GOES_HERE
+destination1_password=REDSHIFT_PASSWORD_GOES_HERE
+source1_password=#{ source_password }
+""".strip)
+
       DataDuck::Commands.quickstart_update_gitignore
 
       puts "Quickstart complete!"
-      puts "You still need to edit your config/secret/*.yml file with your AWS and Redshift credentials."
-      puts "Run your ETL with: ruby src/main.rb"
+      puts "You still need to edit your .env and config/base.yml files with your AWS and Redshift credentials."
+      puts "Run your ETL with: dataduck etl all"
+      puts "For more help, visit http://dataducketl.com/docs"
     end
 
     def self.quickstart_update_gitignore
       main_gitignore_path = "#{ DataDuck.project_root }/.gitignore"
       FileUtils.touch(main_gitignore_path)
-
-      secret_gitignore_path = "#{ DataDuck.project_root }/config/secret/.gitignore"
-      FileUtils.touch(secret_gitignore_path)
-      output = File.open(secret_gitignore_path, "w")
-      output << '[^.]*'
+      output = File.open(main_gitignore_path, "w")
+      output << ".DS_Store\n"
+      output << ".env\n"
       output.close
     end
 
@@ -263,13 +264,6 @@ module DataDuck
       output = File.open(output_path_full, "w")
       output << contents
       output.close
-    end
-
-    def self.quickstart_save_main
-      namespace = Namespace.new
-      template = File.open("#{ DataDuck.gem_root }/lib/templates/quickstart/main.rb.erb", 'r').read
-      result = ERB.new(template).result(namespace.get_binding)
-      DataDuck::Commands.quickstart_save_file("#{ DataDuck.project_root }/src/main.rb", result)
     end
   end
 end

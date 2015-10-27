@@ -54,7 +54,7 @@ The following is an example table.
 
 ```ruby
 class Decks < DataDuck::Table
-  source :my_database, ["id", "name", "user_id", "cards",
+  source :source1, ["id", "name", "user_id", "cards",
       "num_wins", "num_losses", "created_at", "updated_at",
       "is_drafted", "num_draft_wins", "num_draft_losses"]
 
