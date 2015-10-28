@@ -24,8 +24,11 @@ module DataDuck
     end
 
     def connection
+      adapter = self.db_type.to_s
+      adapter = 'mysql2' if adapter == 'mysql' # mysql2 adapter is faster than just mysql
+
       @connection ||= Sequel.connect(
-        adapter: self.db_type,
+        adapter: adapter,
         user: self.username,
         host: self.host,
         database: self.database,
