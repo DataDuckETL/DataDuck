@@ -7,6 +7,7 @@
   "dbconsole": dbconsole
   "etl": etl
   "quickstart": quickstart
+  "recreate": recreate
   "show": show
 
 "Tables":

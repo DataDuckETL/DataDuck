@@ -79,7 +79,7 @@ module DataDuck
         batch_number += 1
         self.extract!(destination)
         self.transform!
-        destination.load_table!(self)
+        self.load!(destination)
 
         if self.batch_size.nil?
           break
@@ -152,6 +152,10 @@ module DataDuck
       end
     end
 
+    def load!(destination)
+      destination.load_table!(self)
+    end
+
     def indexes
       which_columns = []
       which_columns << "id" if self.output_column_names.include?("id")
@@ -187,6 +191,10 @@ module DataDuck
 
     def output_column_names
       self.output_schema.keys.sort.map(&:to_s)
+    end
+
+    def recreate!(destination)
+      destination.recreate_table!(self)
     end
 
     def show

@@ -30,6 +30,10 @@ module DataDuck
       raise Exception.new("Must implement load_table! in subclass")
     end
 
+    def recreate_table!(table)
+      raise Exception.new("Must implement load_table! in subclass")
+    end
+
     def self.destination(name, allow_nil = false)
       name = name.to_s
 

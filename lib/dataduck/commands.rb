@@ -1,6 +1,7 @@
 require 'erb'
 require 'yaml'
 require 'fileutils'
+require 'typhoeus'
 
 module DataDuck
   class Commands
@@ -32,7 +33,7 @@ module DataDuck
     end
 
     def self.acceptable_commands
-      ['console', 'dbconsole', 'etl', 'quickstart', 'show']
+      ['c', 'console', 'd', 'dbconsole', 'etl', 'quickstart', 'recreate', 'show']
     end
 
     def self.route_command(args)
@@ -49,10 +50,18 @@ module DataDuck
       DataDuck::Commands.public_send(command, *args[1..-1])
     end
 
+    def self.c
+      self.console
+    end
+
     def self.console
       require "irb"
       ARGV.clear
       IRB.start
+    end
+
+    def self.d(where = "destination")
+      self.dbconsole(where)
     end
 
     def self.dbconsole(where = "destination")
@@ -110,6 +119,17 @@ module DataDuck
       puts "Commands: #{ acceptable_commands.sort.join(' ') }"
     end
 
+    def self.recreate(table_name)
+      table_name_camelized = DataDuck::Util.underscore_to_camelcase(table_name)
+      require DataDuck.project_root + "/src/tables/#{ table_name }.rb"
+      table_class = Object.const_get(table_name_camelized)
+      if !(table_class <= DataDuck::Table)
+        raise Exception.new("Table class #{ table_name_camelized } must inherit from DataDuck::Table")
+      end
+      table = table_class.new
+      table.recreate!(DataDuck::Destination.only_destination)
+    end
+
     def self.show(table_name = nil)
       if table_name.nil?
         Dir[DataDuck.project_root + "/src/tables/*.rb"].each do |file|
@@ -134,9 +154,33 @@ module DataDuck
       end
     end
 
+    def self.quickstart_register_email(email)
+      registration_data = {
+          email: email,
+          version: DataDuck::VERSION,
+          source: "quickstart"
+      }
+
+      request = Typhoeus::Request.new(
+          "dataducketl.com/api/v1/register",
+          method: :post,
+          body: registration_data,
+          timeout: 30,
+          connecttimeout: 10,
+      )
+
+      hydra = Typhoeus::Hydra.new
+      hydra.queue(request)
+      hydra.run
+    end
+
     def self.quickstart
       puts "Welcome to DataDuck!"
       puts "This quickstart wizard will help you set up DataDuck."
+
+      puts "What is your work email address?"
+      email = STDIN.gets.strip
+      self.quickstart_register_email(email)
 
       puts "What kind of database would you like to source from?"
       db_type = prompt_choices([
@@ -188,6 +232,11 @@ module DataDuck
       end
 
       config_obj = {
+        'users' => {
+            email => {
+                'admin' => true
+            }
+        },
         'sources' => {
           'source1' => {
             'type' => db_type.to_s,

@@ -76,13 +76,17 @@ module DataDuck
     end
 
     def create_output_tables!(table)
-      self.query(self.create_table_query(table, table.building_name))
+      self.create_output_table_with_name!(table, table.building_name)
       self.create_columns_on_data_warehouse!(table)
 
       if table.building_name != table.staging_name
         self.drop_staging_table!(table)
-        self.query(self.create_table_query(table, table.staging_name))
+        self.create_output_table_with_name!(table, table.staging_name)
       end
+    end
+
+    def create_output_table_with_name!(table, name)
+      self.query(self.create_table_query(table, name))
     end
 
     def data_as_csv_string(data, property_names)
@@ -214,6 +218,21 @@ module DataDuck
         self.merge_from_staging!(table)
         self.drop_staging_table!(table)
       end
+    end
+
+    def recreate_table!(table)
+      DataDuck::Logs.info "Recreating table #{ table.name }..."
+
+      if !self.table_names.include?(table.name)
+        raise Exception.new("Table #{ table.name } doesn't exist on the Redshift database, so it can't be recreated. Did you want to use `dataduck create #{ table.name }` instead?")
+      end
+
+      recreating_temp_name = "zz_dataduck_recreating_#{ table.name }"
+      self.create_output_table_with_name!(table, recreating_temp_name)
+      self.query("INSERT INTO #{ recreating_temp_name } (\"#{ table.output_column_names.join('","') }\") SELECT \"#{ table.output_column_names.join('","') }\" FROM #{ table.name }")
+      self.query("ALTER TABLE #{ table.name } RENAME TO zz_dataduck_recreating_old_#{ table.name }")
+      self.query("ALTER TABLE #{ recreating_temp_name } RENAME TO #{ table.name }")
+      self.query("DROP TABLE zz_dataduck_recreating_old_#{ table.name }")
     end
 
     def self.value_to_string(value)
