@@ -147,7 +147,7 @@ module DataDuck
       end
 
       if base_query.include?(' WHERE ')
-        extract_part.gsub!('WHERE ', ' ')
+        extract_part.gsub!('WHERE ', 'AND ')
       end
 
       [base_query, extract_part, limit_part].join(' ').strip
