@@ -11,6 +11,14 @@ Dir[File.dirname(__FILE__) + '/dataduck/*.rb'].each do |file|
   require file
 end
 
+Dir[File.dirname(__FILE__) + '/integrations/*.rb'].each do |file|
+  require file
+end
+
+Dir[File.dirname(__FILE__) + '/integrations/*/*.rb'].each do |file|
+  require file
+end
+
 module DataDuck
   extend ModuleVars
 

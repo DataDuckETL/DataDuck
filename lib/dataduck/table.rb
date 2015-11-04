@@ -45,7 +45,14 @@ module DataDuck
     end
 
     def actions
-      self.class.actions
+      my_actions = []
+      for_class = self.class
+      while for_class < Table
+        my_actions.concat(for_class.actions || [])
+        for_class = for_class.superclass
+      end
+
+      my_actions
     end
 
     def check_table_valid!
@@ -63,11 +70,17 @@ module DataDuck
       end
     end
 
-    def etl!(destinations)
+    def etl!(destinations, options = {})
       if destinations.length != 1
         raise ArgumentError.new("DataDuck can only etl to one destination at a time for now.")
       end
+
+      if options[:dates].nil?
+        options[:dates] = [Date.today]
+      end
+
       self.check_table_valid!
+
       destination = destinations.first
 
       if self.should_fully_reload?
@@ -77,7 +90,7 @@ module DataDuck
       batch_number = 0
       while batch_number < 1_000
         batch_number += 1
-        self.extract!(destination)
+        self.extract!(destination, options)
         self.transform!
         self.load!(destination)
 
@@ -100,7 +113,7 @@ module DataDuck
       end
     end
 
-    def extract!(destination = nil)
+    def extract!(destination = nil, options = {})
       DataDuck::Logs.info "Extracting table #{ self.name }"
 
       self.errors ||= []
@@ -109,7 +122,7 @@ module DataDuck
         source = source_spec[:source]
         my_query = self.extract_query(source_spec, destination)
         results = source.query(my_query)
-        self.data = results
+        self.data.concat(results)
       end
       self.data
     end
@@ -156,6 +169,10 @@ module DataDuck
       destination.load_table!(self)
     end
 
+    def include_with_all?
+      true
+    end
+
     def indexes
       which_columns = []
       which_columns << "id" if self.output_column_names.include?("id")
@@ -186,7 +203,7 @@ module DataDuck
     end
 
     def output_schema
-      self.class.output_schema || {}
+      self.class.output_schema || self.class.superclass.output_schema || {}
     end
 
     def output_column_names
@@ -217,8 +234,7 @@ module DataDuck
       DataDuck::Logs.info "Transforming table #{ self.name }"
 
       self.errors ||= []
-      self.class.actions ||= []
-      self.class.actions.each do |action|
+      self.actions.each do |action|
         action_type = action[0]
         action_method_name = action[1]
         if action_type == :transform
@@ -233,7 +249,16 @@ module DataDuck
     end
 
     def name
-      DataDuck::Util.camelcase_to_underscore(self.class.name)
+      fixed_name = DataDuck::Util.camelcase_to_underscore(self.class.name)
+      if fixed_name.start_with?("data_duck/")
+        fixed_name = fixed_name.split("/").last
+      end
+
+      self.prefix + fixed_name
+    end
+
+    def prefix
+      ""
     end
   end
 end

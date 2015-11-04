@@ -1,6 +1,8 @@
 require_relative 'destination'
 
 module DataDuck
+  class RedshiftLoadError < StandardError; end
+
   class RedshiftDestination < DataDuck::Destination
     attr_accessor :aws_key
     attr_accessor :aws_secret
@@ -45,7 +47,7 @@ module DataDuck
       query_fragments << "FROM '#{ s3_path }'"
       query_fragments << "CREDENTIALS 'aws_access_key_id=#{ self.aws_key };aws_secret_access_key=#{ self.aws_secret }'"
       query_fragments << "REGION '#{ self.s3_region }'"
-      query_fragments << "CSV TRUNCATECOLUMNS ACCEPTINVCHARS EMPTYASNULL"
+      query_fragments << "CSV IGNOREHEADER 1 TRUNCATECOLUMNS ACCEPTINVCHARS EMPTYASNULL"
       query_fragments << "DATEFORMAT 'auto'"
       return query_fragments.join(" ")
     end
@@ -90,10 +92,17 @@ module DataDuck
     end
 
     def data_as_csv_string(data, property_names)
-      data_string_components = [] # for performance reasons, join strings this way
+      data_string_components = [] # join strings this way for now, could be optimized later
+
+      data_string_components << property_names.join(',') # header column
+      data_string_components << "\n"
+
       data.each do |result|
         property_names.each_with_index do |property_name, index|
           value = result[property_name.to_sym]
+          if value.nil?
+            value = result[property_name.to_s]
+          end
 
           if index == 0
             data_string_components << '"'
@@ -176,7 +185,24 @@ module DataDuck
 
     def query(sql)
       Logs.debug("SQL executing on #{ self.name }:\n  " + sql)
-      self.connection[sql].map { |elem| elem }
+      begin
+        self.connection[sql].map { |elem| elem }
+      rescue Exception => err
+        if err.to_s.include?("Check 'stl_load_errors' system table for details")
+          self.raise_stl_load_error!
+        else
+          raise err
+        end
+      end
+    end
+
+    def raise_stl_load_error!
+      load_error_sql = "SELECT filename, line_number, colname, position, err_code, err_reason FROM stl_load_errors ORDER BY starttime DESC LIMIT 1"
+      load_error_details = self.connection[load_error_sql].map { |elem| elem }.first
+
+      raise RedshiftLoadError.new("Error loading Redshift, '#{ load_error_details[:err_reason].strip }' " +
+          "(code #{ load_error_details[:err_code] }) with file #{ load_error_details[:filename].strip } " +
+          "for column '#{ load_error_details[:colname].strip }'. The error occurred at line #{ load_error_details[:line_number] }, position #{ load_error_details[:position] }.")
     end
 
     def table_names
@@ -237,10 +263,16 @@ module DataDuck
 
     def self.value_to_string(value)
       string_value = ''
-      if value.respond_to? :to_s
+
+      if value.respond_to?(:strftime)
+        from_value = value.respond_to?(:utc) ? value.utc : value
+        string_value =  from_value.strftime('%Y-%m-%d %H:%M:%S')
+      elsif value.respond_to?(:to_s)
         string_value = value.to_s
       end
+
       string_value.gsub!('"', '""')
+
       return string_value
     end
   end
