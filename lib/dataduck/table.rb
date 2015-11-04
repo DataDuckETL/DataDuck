@@ -146,6 +146,10 @@ module DataDuck
         end
       end
 
+      if base_part.include?(' WHERE ')
+        extract_part.gsub!('WHERE ', ' ')
+      end
+
       [base_query, extract_part, limit_part].join(' ').strip
     end
 
