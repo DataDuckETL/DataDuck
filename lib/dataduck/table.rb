@@ -146,7 +146,7 @@ module DataDuck
         end
       end
 
-      if base_part.include?(' WHERE ')
+      if base_query.include?(' WHERE ')
         extract_part.gsub!('WHERE ', ' ')
       end
 
