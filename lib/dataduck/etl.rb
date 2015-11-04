@@ -25,9 +25,9 @@ module DataDuck
           table_name_underscores = file.split("/").last.gsub(".rb", "")
           table_name_camelized = DataDuck::Util.underscore_to_camelcase(table_name_underscores)
           require file
-          table = Object.const_get(table_name_camelized)
-          if table <= DataDuck::Table
-            @tables << table
+          table_class = Object.const_get(table_name_camelized)
+          if table_class <= DataDuck::Table && table_class.new.include_with_all?
+            @tables << table_class
           end
         end
       end
