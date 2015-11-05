@@ -7,27 +7,20 @@ require 'date'
 module DataDuck
   module Optimizely
     class Projects < DataDuck::Optimizely::OptimizelyTable
-      transforms :parse_datetimes
+      def initialize(data)
+        self.data = data
+      end
 
-      def extract!(destination, options = {})
-        self.data = []
-
-        now = DateTime.now
-        response = Typhoeus.get("https://www.optimizelyapis.com/experiment/v1/projects", headers: {'Token' => self.optimizely_api_token})
-
-        self.data = Oj.load(response.body)
-        self.data.each do |project|
-          project[:dataduck_extracted_at] = now
-        end
+      def extract!(*args)
+        # already initialized data
       end
 
       def indexes
         ["id", "account_id", "project_name"]
       end
 
-      def parse_datetimes
-        project["created"] = DateTime.parse(project["created"])
-        project["last_modified"] = DateTime.parse(project["last_modified"])
+      def should_fully_reload?
+        true
       end
 
       output({

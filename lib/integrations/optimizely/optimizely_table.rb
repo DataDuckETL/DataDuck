@@ -5,6 +5,10 @@ module DataDuck
         ENV['optimizely_api_token']
       end
 
+      def prefix
+        "optimizely_"
+      end
+
       def should_fully_reload?
         true
       end
