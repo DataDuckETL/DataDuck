@@ -175,10 +175,26 @@ module DataDuck
       end
 
       # Following guidelines in http://docs.aws.amazon.com/redshift/latest/dg/merge-examples.html
+      self.delete_before_inserting!(table)
+      self.insert_from_staging!(table)
+    end
+
+    def delete_before_inserting!(table)
       staging_name = table.staging_name
       building_name = table.building_name
-      delete_query = "DELETE FROM #{ building_name } USING #{ staging_name } WHERE #{ building_name }.id = #{ staging_name }.id" # TODO allow custom or multiple keys
+
+      where_equals_parts = []
+      table.identify_by_columns.each do |attribute|
+        where_equals_parts << "#{ building_name }.#{ attribute } = #{ staging_name }.#{ attribute }"
+      end
+
+      delete_query = "DELETE FROM #{ building_name } USING #{ staging_name } WHERE #{ where_equals_parts.join(' AND ') }"
       self.query(delete_query)
+    end
+
+    def insert_from_staging!(table)
+      staging_name = table.staging_name
+      building_name = table.building_name
       insert_query = "INSERT INTO #{ building_name } (\"#{ table.output_column_names.join('","') }\") SELECT \"#{ table.output_column_names.join('","') }\" FROM #{ staging_name }"
       self.query(insert_query)
     end

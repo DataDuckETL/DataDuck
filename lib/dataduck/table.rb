@@ -194,6 +194,12 @@ module DataDuck
       nil
     end
 
+    def identify_by_columns
+      return ["id"] if self.output_column_names.include?("id")
+
+      []
+    end
+
     def should_fully_reload?
       false # Set to true if you want to fully reload a table with each ETL
     end
