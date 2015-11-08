@@ -146,7 +146,7 @@ module DataDuck
         end
       end
 
-      if base_query.downcase.include?(' where ')
+      if base_query.downcase.split("from").last.include?(' where ')
         extract_part.gsub!('WHERE ', 'AND ')
       end
 
