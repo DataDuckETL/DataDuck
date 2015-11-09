@@ -45,8 +45,6 @@ module DataDuck
         escaped_phrase = URI.escape(phrase)
         semrush_api_url = "http://api.semrush.com/?type=phrase_organic&key=#{ self.key }&display_limit=#{ self.display_limit }&export_columns=Dn,Ur&phrase=#{ escaped_phrase }&database=#{ self.search_database }"
 
-        puts semrush_api_url
-
         response = Typhoeus.get(semrush_api_url)
         if response.response_code != 200
           raise OrganicResultsAPIError.new("SEMrush API for phrase #{ phrase } returned error #{ response.response_code } #{ response.body }")

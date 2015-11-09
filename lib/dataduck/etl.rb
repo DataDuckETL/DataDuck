@@ -41,14 +41,15 @@ module DataDuck
       destinations_to_use = destinations_to_use.concat(self.destinations)
       destinations_to_use.uniq!
 
-      @tables.each do |table_class|
-        table_to_etl = table_class.new
-        table_to_etl.etl!(destinations_to_use)
+      @tables.each do |table_or_class|
+        table = table_or_class.kind_of?(DataDuck::Table) ? table_or_class : table_or_class.new
+        Logs.info("Processing table #{ table.name }...")
+        table.etl!(destinations_to_use)
       end
     end
 
     def process_table!(table)
-      Logs.info("Processing ETL for table #{ table.name } on pid #{ Process.pid }...")
+      Logs.info("Processing table #{ table.name } on pid #{ Process.pid }...")
 
       destinations_to_use = []
       destinations_to_use = destinations_to_use.concat(self.class.destinations)
@@ -56,6 +57,12 @@ module DataDuck
       destinations_to_use.uniq!
 
       table.etl!(destinations_to_use)
+    end
+
+    def process_tables!(tables)
+      tables.each do |table|
+        self.process_table!(table)
+      end
     end
   end
 end

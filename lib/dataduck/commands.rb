@@ -89,28 +89,35 @@ module DataDuck
       which_database.dbconsole
     end
 
-    def self.etl(what = nil)
-      if what.nil?
+    def self.etl(*table_names_underscore)
+      if table_names_underscore.length == 0
         puts "You need to specify a table name or 'all'. Usage: dataduck etl all OR datduck etl my_table_name"
         return
       end
 
       only_destination = DataDuck::Destination.only_destination
 
-      if what == "all"
+      if table_names_underscore.length == 1 && table_names_underscore[0] == "all"
         etl = ETL.new(destinations: [only_destination], autoload_tables: true)
         etl.process!
       else
-        table_name_camelized = DataDuck::Util.underscore_to_camelcase(what)
-        require DataDuck.project_root + "/src/tables/#{ what }.rb"
-        table_class = Object.const_get(table_name_camelized)
-        if !(table_class <= DataDuck::Table)
-          raise Exception.new("Table class #{ table_name_camelized } must inherit from DataDuck::Table")
+        tables = []
+        table_names_underscore.each do |table_name|
+          table_name_camelized = DataDuck::Util.underscore_to_camelcase(table_name)
+          require DataDuck.project_root + "/src/tables/#{ table_name }.rb"
+          table_class = Object.const_get(table_name_camelized)
+          if !(table_class <= DataDuck::Table)
+            raise Exception.new("Table class #{ table_name_camelized } must inherit from DataDuck::Table")
+          end
+          table = table_class.new
+          tables << table
         end
-
-        table = table_class.new
-        etl = ETL.new(destinations: [only_destination], autoload_tables: false, tables: [table])
-        etl.process_table!(table)
+        etl = ETL.new({
+            destinations: [only_destination],
+            autoload_tables: false,
+            tables: tables
+        })
+        etl.process!
       end
     end
 
