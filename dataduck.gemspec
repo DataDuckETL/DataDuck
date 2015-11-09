@@ -29,4 +29,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "typhoeus", "~> 0.8"
   spec.add_runtime_dependency "oj", "~> 2.12"
   spec.add_runtime_dependency "sequel-redshift"
+  spec.add_runtime_dependency "whenever", "~> 0.9"
 end

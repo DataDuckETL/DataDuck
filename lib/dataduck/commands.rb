@@ -312,6 +312,13 @@ source1_password=#{ source_password }
       DataDuck::Commands.quickstart_save_file("#{ DataDuck.project_root }/src/tables/#{ table_name }.rb", result)
     end
 
+    def self.quickstart_create_schedule_config
+      namespace = Namespace.new
+      template = File.open("#{ DataDuck.gem_root }/lib/templates/quickstart/schedule.rb.erb", 'r').read
+      result = ERB.new(template).result(namespace.get_binding)
+      DataDuck::Commands.quickstart_save_file("#{ DataDuck.project_root }/config/schedule.rb", result)
+    end
+
     def self.quickstart_save_file(output_path_full, contents)
       *output_path, output_filename = output_path_full.split('/')
       output_path = output_path.join("/")

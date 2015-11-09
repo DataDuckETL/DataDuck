@@ -1,0 +1,19 @@
+# This file configures the whenver gem:
+# https://github.com/javan/whenever
+#
+# To update crontab from this schedule.rb file:
+#   whenever --update-crontab etl
+#
+# To clear the crontab from this schedule.rb file:
+#   whenever --clear-crontab etl
+#
+# To list out your crontab:
+#   crontab -l
+
+require 'dataduck'
+
+set :output, "#{ DataDuck.project_root }/log/cron.log"
+
+every 1.day, :at => '2:00 am' do
+  command "cd #{ DataDuck.project_root } && dataduck etl all"
+end
