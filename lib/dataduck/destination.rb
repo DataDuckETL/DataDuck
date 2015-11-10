@@ -34,6 +34,10 @@ module DataDuck
       raise Exception.new("Must implement load_table! in subclass")
     end
 
+    def postprocess!(table)
+      # e.g. vacuum or build indexes
+    end
+
     def self.destination(name, allow_nil = false)
       name = name.to_s
 

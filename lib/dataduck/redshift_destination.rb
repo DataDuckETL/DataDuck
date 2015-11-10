@@ -277,6 +277,12 @@ module DataDuck
       self.query("DROP TABLE zz_dataduck_recreating_old_#{ table.name }")
     end
 
+    def postprocess!(table)
+      DataDuck::Logs.info "Vacuuming table #{ table.name }"
+      vacuum_type = table.indexes.length == 0 ? "FULL" : "REINDEX"
+      self.query("VACUUM #{ vacuum_type } #{ table.name }")
+    end
+
     def self.value_to_string(value)
       string_value = ''
 

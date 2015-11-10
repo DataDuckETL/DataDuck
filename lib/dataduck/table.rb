@@ -111,6 +111,8 @@ module DataDuck
       if self.should_fully_reload?
         destination.finish_fully_reloading_table!(self)
       end
+
+      self.postprocess!(destination, options)
     end
 
     def extract!(destination = nil, options = {})
@@ -218,6 +220,10 @@ module DataDuck
 
     def output_column_names
       self.output_schema.keys.sort.map(&:to_s)
+    end
+
+    def postprocess!(destination, options = {})
+      destination.postprocess!(self)
     end
 
     def recreate!(destination)
