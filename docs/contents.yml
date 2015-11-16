@@ -13,3 +13,7 @@
 "Tables":
   "The Table Class": README
   "Incremental vs Full Loading": incremental_vs_full_loading
+
+"Integrations":
+  "Optimizely": optimizely
+  "SEMrush": semrush

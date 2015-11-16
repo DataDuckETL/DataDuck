@@ -1,7 +1,5 @@
 # Incremental vs Full Loading
 
-## Two different types of loading
-
 Loading a table can be performed either incrementally or with a full reload each time. An incremental load is generally
 better, since it takes less time and transfers less data, however not all tables cannot be loaded incrementally.
 
@@ -34,6 +32,7 @@ class MyTable < DataDuck::Table
       :created_at => :datetime,
       :name => :string,
   })
+end
 ```
 
 ## Full reloads
@@ -67,4 +66,5 @@ class MyTableFullyReloaded < DataDuck::Table
       :created_at => :datetime,
       :name => :string,
   })
+end
 ```
