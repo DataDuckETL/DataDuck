@@ -1,4 +1,5 @@
 require 'logger'
+require 'raven'
 
 module DataDuck
   module Logs
@@ -43,6 +44,10 @@ module DataDuck
 
       puts "[ERROR] #{ message }"
       @@logger.error(message)
+
+      if ENV['SENTRY_DSN']
+        Raven.capture_exception(err)
+      end
     end
 
     private

@@ -47,7 +47,11 @@ module DataDuck
         return DataDuck::Commands.help
       end
 
-      DataDuck::Commands.public_send(command, *args[1..-1])
+      begin
+        DataDuck::Commands.public_send(command, *args[1..-1])
+      rescue Exception => err
+        DataDuck::Logs.error(err)
+      end
     end
 
     def self.c
