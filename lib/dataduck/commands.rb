@@ -2,6 +2,7 @@ require 'erb'
 require 'yaml'
 require 'fileutils'
 require 'typhoeus'
+require 'io/console'
 
 module DataDuck
   class Commands
