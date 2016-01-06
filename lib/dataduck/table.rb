@@ -87,12 +87,16 @@ module DataDuck
         destination.drop_staging_table!(self)
       end
 
+      data_processed = false
       batch_number = 0
       while batch_number < 1_000
         batch_number += 1
         self.extract!(destination, options)
-        self.transform!
-        self.load!(destination)
+        if self.data.length > 1
+          self.transform!
+          self.load!(destination)
+          data_processed = true
+        end
 
         if self.batch_size.nil?
           break
@@ -108,11 +112,15 @@ module DataDuck
 
       self.data = []
 
-      if self.should_fully_reload?
-        destination.finish_fully_reloading_table!(self)
-      end
+      if data_processed
+        if self.should_fully_reload?
+          destination.finish_fully_reloading_table!(self)
+        end
 
-      self.postprocess!(destination, options)
+        self.postprocess!(destination, options)
+      else
+        DataDuck::Logs.info "No data extracted for table #{ self.name }"
+      end
     end
 
     def extract!(destination = nil, options = {})
@@ -157,7 +165,7 @@ module DataDuck
 
     def extract_by_clause(value)
       if value
-        "WHERE #{ self.extract_by_column } >= '#{ value }'"
+        "WHERE #{ self.extract_by_column } > '#{ value }'"
       else
         ""
       end
