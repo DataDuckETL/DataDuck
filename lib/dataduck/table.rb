@@ -92,7 +92,7 @@ module DataDuck
       while batch_number < 1_000
         batch_number += 1
         self.extract!(destination, options)
-        if self.data.length > 1
+        if self.data.length > 0
           self.transform!
           self.load!(destination)
           data_processed = true
@@ -165,7 +165,7 @@ module DataDuck
 
     def extract_by_clause(value)
       if value
-        "WHERE #{ self.extract_by_column } > '#{ value }'"
+        "WHERE #{ self.extract_by_column } >= '#{ value }'"
       else
         ""
       end
