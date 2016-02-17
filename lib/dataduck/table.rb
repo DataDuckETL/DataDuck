@@ -94,7 +94,8 @@ module DataDuck
         self.extract!(destination, options)
         if self.data.length > 0
           self.transform!
-          self.load!(destination)
+          self.data.compact!
+          self.load!(destination) if self.data.length > 0
           data_processed = true
         end
 
