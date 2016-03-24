@@ -50,7 +50,7 @@ module DataDuck
             })
         begin
           response = s3.put_object(put_hash)
-        rescue Exception => e
+        rescue => e
           if attempts == S3Object.max_retries
             throw e
           end

@@ -203,7 +203,7 @@ module DataDuck
       Logs.debug("SQL executing on #{ self.name }:\n  " + sql)
       begin
         self.connection[sql].map { |elem| elem }
-      rescue Exception => err
+      rescue => err
         if err.to_s.include?("Check 'stl_load_errors' system table for details")
           self.raise_stl_load_error!
         else
@@ -266,7 +266,7 @@ module DataDuck
       DataDuck::Logs.info "Recreating table #{ table.name }..."
 
       if !self.table_names.include?(table.name)
-        raise Exception.new("Table #{ table.name } doesn't exist on the Redshift database, so it can't be recreated. Did you want to use `dataduck create #{ table.name }` instead?")
+        raise "Table #{ table.name } doesn't exist on the Redshift database, so it can't be recreated. Did you want to use `dataduck create #{ table.name }` instead?"
       end
 
       recreating_temp_name = "zz_dataduck_recreating_#{ table.name }"

@@ -43,7 +43,7 @@ module DataDuck
           experiment_variations = []
           begin
             experiment_variations = fetch_data(endpoint)
-          rescue Exception => err
+          rescue => err
             broken_experiments << experiment
           end
           experiment_variations.each do |exp_var|
@@ -69,7 +69,7 @@ module DataDuck
 
         response = Typhoeus.get("https://www.optimizelyapis.com/experiment/v1/#{ api_endpoint }", headers: {'Token' => optimizely_api_token})
         if response.response_code != 200
-          raise Exception.new("Optimizely API for #{ api_endpoint } returned error #{ response.response_code} #{ response.body }")
+          raise "Optimizely API for #{ api_endpoint } returned error #{ response.response_code} #{ response.body }"
         end
 
         rows = Oj.load(response.body)

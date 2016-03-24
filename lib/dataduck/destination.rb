@@ -20,18 +20,18 @@ module DataDuck
 
     def self.destination_config(name)
       if DataDuck.config['destinations'].nil? || DataDuck.config['destinations'][name.to_s].nil?
-        raise Exception.new("Could not find destination #{ name } in destinations configs.")
+        raise "Could not find destination #{ name } in destinations configs."
       end
 
       DataDuck.config['destinations'][name.to_s]
     end
 
     def load_table!(table)
-      raise Exception.new("Must implement load_table! in subclass")
+      raise "Must implement load_table! in subclass"
     end
 
     def recreate_table!(table)
-      raise Exception.new("Must implement load_table! in subclass")
+      raise "Must implement recreate_table! in subclass"
     end
 
     def postprocess!(table)
@@ -46,7 +46,7 @@ module DataDuck
       elsif allow_nil
         return nil
       else
-        raise Exception.new("Could not find destination #{ name } in destination configs.")
+        raise "Could not find destination #{ name } in destination configs."
       end
     end
 

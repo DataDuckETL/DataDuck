@@ -7,15 +7,15 @@ module DataDuck
     end
 
     def connection
-      raise Exception.new("Must implement connection in subclass.")
+      raise "Must implement connection in subclass."
     end
 
     def query(sql)
-      raise Exception.new("Must implement query in subclass.")
+      raise "Must implement query in subclass."
     end
 
     def table_names
-      raise Exception.new("Must implement query in subclass.")
+      raise "Must implement query in subclass."
     end
 
     protected

@@ -22,7 +22,7 @@ module DataDuck
 
     def self.source_config(name)
       if DataDuck.config['sources'].nil? || DataDuck.config['sources'][name.to_s].nil?
-        raise Exception.new("Could not find source #{ name } in source configs.")
+        raise "Could not find source #{ name } in source configs."
       end
 
       DataDuck.config['sources'][name.to_s]
@@ -36,7 +36,7 @@ module DataDuck
       elsif allow_nil
         return nil
       else
-        raise Exception.new("Could not find source #{ name } in source configs.")
+        raise "Could not find source #{ name } in source configs."
       end
     end
 
