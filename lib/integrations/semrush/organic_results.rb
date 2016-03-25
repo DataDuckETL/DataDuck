@@ -4,7 +4,7 @@ require 'uri'
 
 module DataDuck
   module SEMRush
-    class OrganicResultsAPIError < Exception; end
+    class OrganicResultsAPIError < StandardError; end
 
     class OrganicResults < DataDuck::IntegrationTable
       def display_limit
@@ -16,7 +16,7 @@ module DataDuck
       end
 
       def phrases
-        raise Exception("Must implement phrases method to be an array of the phrases you want.")
+        raise "Must implement phrases method to be an array of the phrases you want."
       end
 
       def prefix

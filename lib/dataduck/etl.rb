@@ -51,7 +51,7 @@ module DataDuck
         Logs.info("Processing table '#{ table.name }'...")
         begin
           table.etl!(destinations_to_use)
-        rescue Exception => err
+        rescue => err
           Logs.error("Error while processing table '#{ table.name }': #{ err.to_s }\n#{ err.backtrace.join("\n") }")
           errored_tables << table
         end

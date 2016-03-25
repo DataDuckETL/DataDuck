@@ -57,8 +57,8 @@ module DataDuck
 
     def check_table_valid!
       if !self.batch_size.nil?
-        raise Exception.new("Table #{ self.name }'s batch_size must be > 0") unless self.batch_size > 0
-        raise Exception.new("Table #{ self.name } has batch_size defined but no extract_by_column") if self.extract_by_column.nil?
+        raise "Table #{ self.name }'s batch_size must be > 0" unless self.batch_size > 0
+        raise "Table #{ self.name } has batch_size defined but no extract_by_column" if self.extract_by_column.nil?
       end
     end
 

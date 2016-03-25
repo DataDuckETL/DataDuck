@@ -50,7 +50,7 @@ module DataDuck
 
       begin
         DataDuck::Commands.public_send(command, *args[1..-1])
-      rescue Exception => err
+      rescue => err
         DataDuck::Logs.error(err)
       end
     end
@@ -112,7 +112,7 @@ module DataDuck
           require DataDuck.project_root + "/src/tables/#{ table_name }.rb"
           table_class = Object.const_get(table_name_camelized)
           if !(table_class <= DataDuck::Table)
-            raise Exception.new("Table class #{ table_name_camelized } must inherit from DataDuck::Table")
+            raise "Table class #{ table_name_camelized } must inherit from DataDuck::Table"
           end
           table = table_class.new
           tables << table
@@ -136,7 +136,7 @@ module DataDuck
       require DataDuck.project_root + "/src/tables/#{ table_name }.rb"
       table_class = Object.const_get(table_name_camelized)
       if !(table_class <= DataDuck::Table)
-        raise Exception.new("Table class #{ table_name_camelized } must inherit from DataDuck::Table")
+        raise "Table class #{ table_name_camelized } must inherit from DataDuck::Table"
       end
       table = table_class.new
       table.recreate!(DataDuck::Destination.only_destination)
@@ -158,7 +158,7 @@ module DataDuck
         require DataDuck.project_root + "/src/tables/#{ table_name }.rb"
         table_class = Object.const_get(table_name_camelized)
         if !(table_class <= DataDuck::Table)
-          raise Exception.new("Table class #{ table_name_camelized } must inherit from DataDuck::Table")
+          raise "Table class #{ table_name_camelized } must inherit from DataDuck::Table"
         end
 
         table = table_class.new

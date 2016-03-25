@@ -31,7 +31,7 @@ module DataDuck
   detect_project_root = Dir.getwd
   while true
     if detect_project_root == ""
-      raise Exception.new("Could not find a Gemfile in the current working directory or any parent directories. Are you sure you're running this from the right place?")
+      raise "Could not find a Gemfile in the current working directory or any parent directories. Are you sure you're running this from the right place?"
     end
 
     if File.exist?(detect_project_root + '/Gemfile')
