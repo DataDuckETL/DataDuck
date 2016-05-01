@@ -212,7 +212,11 @@ module DataDuck
     end
 
     def should_fully_reload?
-      false # Set to true if you want to fully reload a table with each ETL
+      false
+    end
+
+    def autogenerate_identity?
+      false
     end
 
     def building_name
@@ -223,12 +227,24 @@ module DataDuck
       "zz_dataduck_#{ self.name }"
     end
 
+    def create_schema
+      if self.autogenerate_identity?
+        Util.deep_merge(output_schema, {dataduck_identity: 'bigint identity(1, 1)'}) # Redshift only
+      else
+        output_schema
+      end
+    end
+
+    def create_column_names
+      self.create_schema.keys.map(&:to_s).sort
+    end
+
     def output_schema
       self.class.output_schema || self.class.superclass.output_schema || {}
     end
 
     def output_column_names
-      self.output_schema.keys.sort.map(&:to_s)
+      self.output_schema.keys.map(&:to_s).sort
     end
 
     def postprocess!(destination, options = {})
