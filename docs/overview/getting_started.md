@@ -19,6 +19,13 @@ Then execute:
 
     $ bundle install
 
+For customer relationship management, we use [Supported Source](https://supportedsource.org/). This means you'll have to
+get a client token with Supported Source in order to run DataDuck ETL. Run the following command:
+
+    $ supso update
+
+It will ask you for your work email, then send you a confirmation token. After confirming, you'll be able to continue.
+ 
 Finally, run the quickstart command:
 
     $ dataduck quickstart
