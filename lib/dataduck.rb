@@ -3,6 +3,9 @@ Dotenv.load
 
 require 'yaml'
 
+require 'supported_source'
+SupportedSource::Project.add('dataduck-etl', 'htzk67rx7a9g')
+
 Dir[File.dirname(__FILE__) + '/helpers/*.rb'].each do |file|
   require file
 end
@@ -18,6 +21,7 @@ end
 Dir[File.dirname(__FILE__) + '/integrations/*/*.rb'].each do |file|
   require file
 end
+
 
 module DataDuck
   extend ModuleVars
