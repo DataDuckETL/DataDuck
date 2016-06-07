@@ -12,3 +12,4 @@ log
 *.lock
 .idea
 *.gem
+.supso
