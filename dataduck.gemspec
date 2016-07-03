@@ -32,5 +32,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "whenever", "~> 0.9"
   spec.add_runtime_dependency "sentry-raven", '~>0.15'
 
-  spec.add_dependency 'supported_source'
+  spec.add_dependency 'supported_source', '>=0.9.6'
 end
