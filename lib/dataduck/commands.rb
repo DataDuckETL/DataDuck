@@ -1,6 +1,7 @@
 require 'erb'
 require 'yaml'
 require 'fileutils'
+require 'typhoeus'
 require 'io/console'
 
 module DataDuck
@@ -165,9 +166,33 @@ module DataDuck
       end
     end
 
+    def self.quickstart_register_email(email)
+      registration_data = {
+          email: email,
+          version: DataDuck::VERSION,
+          source: "quickstart"
+      }
+
+      request = Typhoeus::Request.new(
+          "dataducketl.com/api/v1/register",
+          method: :post,
+          body: registration_data,
+          timeout: 30,
+          connecttimeout: 10,
+      )
+
+      hydra = Typhoeus::Hydra.new
+      hydra.queue(request)
+      hydra.run
+    end
+
     def self.quickstart
       puts "Welcome to DataDuck!"
       puts "This quickstart wizard will help you set up DataDuck."
+
+      puts "What is your work email address?"
+      email = STDIN.gets.strip
+      self.quickstart_register_email(email)
 
       puts "What kind of database would you like to source from?"
       db_type = prompt_choices([

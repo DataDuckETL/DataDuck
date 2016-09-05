@@ -3,9 +3,6 @@ Dotenv.load
 
 require 'yaml'
 
-require 'supported_source'
-SupportedSource::Project.add('dataduck-etl', 'htzk67rx7a9g')
-
 Dir[File.dirname(__FILE__) + '/helpers/*.rb'].each do |file|
   require file
 end

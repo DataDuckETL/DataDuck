@@ -1,6 +1,15 @@
 require 'logger'
 require 'raven'
 
+if ENV['AIRBRAKE_PROJECT_ID'] && ENV['AIRBRAKE_PROJECT_KEY']
+  require 'airbrake'
+
+  Airbrake.configure do |c|
+    c.project_id = ENV['AIRBRAKE_PROJECT_ID']
+    c.project_key = ENV['AIRBRAKE_PROJECT_KEY']
+  end
+end
+
 module DataDuck
   module Logs
     @@ONE_MB_IN_BYTES = 1048576
@@ -45,12 +54,20 @@ module DataDuck
       puts "[ERROR] #{ message }"
       @@logger.error(message)
 
-      if ENV['SENTRY_DSN']
-        Raven.capture_exception(err)
-      end
+      Logs.third_party_error_tracking!(err)
     end
 
     private
+
+      def Logs.third_party_error_tracking!(err)
+        if ENV['SENTRY_DSN']
+          Raven.capture_exception(err)
+        end
+
+        if ENV['AIRBRAKE_PROJECT_ID'] && ENV['AIRBRAKE_PROJECT_KEY']
+          Airbrake.notify_sync(err)
+        end
+      end
 
       def Logs.sanitize_message(message)
         message = message.gsub(/aws_access_key_id=[^';]+/, "aws_access_key_id=******")

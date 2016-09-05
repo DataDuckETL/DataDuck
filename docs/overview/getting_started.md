@@ -19,18 +19,6 @@ Then execute:
 
     $ bundle install
 
-For customer relationship management, we use [Supported Source](https://supportedsource.org/). This means you'll have to
-get a client token with Supported Source in order to run DataDuck ETL. Ensure you have the Supported Source command 
-line interface:
-
-    $ gem install supso
-
-Then run the following command to get a client token for DataDuck ETL:
-
-    $ supso update
-
-It will ask you for your work email, then send you a confirmation token. After confirming, you'll be able to continue.
- 
 Finally, run the quickstart command:
 
     $ dataduck quickstart

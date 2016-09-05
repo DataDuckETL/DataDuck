@@ -15,5 +15,7 @@
   "Incremental vs Full Loading": incremental_vs_full_loading
 
 "Integrations":
+  "Airbrake": airbrake
   "Optimizely": optimizely
   "SEMrush": semrush
+  "Sentry": sentry
