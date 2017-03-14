@@ -70,6 +70,10 @@ module DataDuck
       end
     end
 
+    def distribution_style
+      nil
+    end
+
     def etl!(destinations, options = {})
       if destinations.length != 1
         raise ArgumentError.new("DataDuck can only etl to one destination at a time for now.")
