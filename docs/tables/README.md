@@ -45,8 +45,46 @@ and leave the rest of the process (and the Redshift loading) up to DataDuck.
 ## The `extract!` method
 
 The `extract!` method takes one argument: the destination. It then extracts the data from the source necessary to load
-data into the destination. If you are writing your own Table class with some custom third party API, you will probably 
+data into the destination. If you are writing your own Table class with some custom third party API, you will probably
 want to overwrite this method.
+
+## Overriding indexes (sortkeys)
+
+By sortkey, Redshift means what other databases would generally call indexes. DataDuck ETL will use `id` and `created_at` as sortkeys by default. If you would like to specify your own, simply overwrite the `indexes` method on your table, like this example:
+
+```ruby
+class Decks < DataDuck::Table
+  # source info goes here
+
+  def indexes
+    ["id", "user_id"]
+  end
+
+  # output info goes here
+end
+```
+
+## Overriding distkeys and diststyles
+
+For large datasets, Redshift can distribute the data across multiple compute nodes according to your distkey and diststyle. To use these, simply overwrite the distribution_key and distribution_style methods.
+
+```ruby
+class Decks < DataDuck::Table
+  # source info goes here
+
+  def distribution_key
+    "company_id"
+  end
+
+  def distribution_style
+    "all"
+  end
+
+  # output info goes here
+end
+```
+
+For more info, read: [http://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html](Distributing Data)
 
 ## Example Table
 
