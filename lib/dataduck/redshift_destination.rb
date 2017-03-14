@@ -72,7 +72,7 @@ module DataDuck
       props_string = props_array.join(', ')
 
       distribution_clause = table.distribution_key ? "DISTKEY(#{ table.distribution_key })" : ""
-      distribution_style_clause = table.distribution_style ? "DISTSTYLE #{ distribution_style }" : ""
+      distribution_style_clause = table.distribution_style ? "DISTSTYLE #{ table.distribution_style }" : ""
       index_clause = table.indexes.length > 0 ? "INTERLEAVED SORTKEY (#{ table.indexes.join(',') })" : ""
 
       "CREATE TABLE IF NOT EXISTS #{ table_name } (#{ props_string }) #{ distribution_clause } #{ distribution_style_clause } #{ index_clause }"
