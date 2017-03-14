@@ -240,7 +240,10 @@ module DataDuck
       puts "Connection successful. Detected #{ table_names.length } tables."
       puts "Creating scaffolding..."
       table_names.each do |table_name|
-        DataDuck::Commands.quickstart_create_table(table_name, db_source)
+        begin
+          DataDuck::Commands.quickstart_create_table(table_name, db_source)
+        rescue
+        end
       end
 
       config_obj = {
