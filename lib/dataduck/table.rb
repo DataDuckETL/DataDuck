@@ -170,7 +170,8 @@ module DataDuck
 
     def extract_by_clause(value)
       if value
-        "WHERE #{ self.extract_by_column } >= '#{ value }'"
+        operator = self.should_fully_reload? ? '>' : '>='
+        "WHERE #{ self.extract_by_column } #{ operator } '#{ value }'"
       else
         ""
       end
