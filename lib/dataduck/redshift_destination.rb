@@ -48,7 +48,7 @@ module DataDuck
       query_fragments << "CREDENTIALS 'aws_access_key_id=#{ self.aws_key };aws_secret_access_key=#{ self.aws_secret }'"
       query_fragments << "REGION '#{ self.s3_region }'"
       query_fragments << "CSV IGNOREHEADER 1 TRUNCATECOLUMNS ACCEPTINVCHARS EMPTYASNULL"
-      query_fragments << "DATEFORMAT 'auto'"
+      query_fragments << "DATEFORMAT 'auto' gzip"
       return query_fragments.join(" ")
     end
 
@@ -228,9 +228,10 @@ module DataDuck
 
     def upload_table_to_s3!(table)
       now_epoch = Time.now.to_i.to_s
-      filepath = "pending/#{ table.name.downcase }_#{ now_epoch }.csv"
+      filepath = "pending/#{ table.name.downcase }_#{ now_epoch }.csv.gz"
 
-      table_csv = self.data_as_csv_string(table.data, table.output_column_names)
+      table_csv = Zlib::GzipReader.new(StringIO.new(
+          self.data_as_csv_string(table.data, table.output_column_names))).read
 
       s3_obj = S3Object.new(filepath, table_csv, self.aws_key, self.aws_secret,
           self.s3_bucket, self.s3_region)
