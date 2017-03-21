@@ -61,6 +61,7 @@ module DataDuck
       if errored_tables.length > 0
         Logs.info("The following tables encountered errors: '#{ errored_tables.map(&:name).join("', '") }'")
       end
+      exit(1)
     end
   end
 end
