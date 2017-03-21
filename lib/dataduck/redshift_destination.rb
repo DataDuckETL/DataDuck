@@ -226,17 +226,24 @@ module DataDuck
       self.query("SELECT DISTINCT(tablename) AS name FROM pg_table_def WHERE schemaname='public' ORDER BY name").map { |item| item[:name] }
     end
 
+    def gzip(data)
+      sio = StringIO.new
+      gz = Zlib::GzipWriter.new(sio)
+      gz.write(data)
+      gz.close
+      sio.string
+    end
+
     def upload_table_to_s3!(table)
       now_epoch = Time.now.to_i.to_s
       filepath = "pending/#{ table.name.downcase }_#{ now_epoch }.csv.gz"
 
-      table_csv = Zlib::GzipReader.new(StringIO.new(
-          self.data_as_csv_string(table.data, table.output_column_names))).read
+      table_csv = self.gzip(self.data_as_csv_string(table.data, table.output_column_names))
 
       s3_obj = S3Object.new(filepath, table_csv, self.aws_key, self.aws_secret,
           self.s3_bucket, self.s3_region)
       s3_obj.upload!
-      return s3_obj
+      s3_obj
     end
 
     def finish_fully_reloading_table!(table)
