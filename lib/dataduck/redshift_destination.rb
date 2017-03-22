@@ -48,7 +48,7 @@ module DataDuck
       query_fragments << "CREDENTIALS 'aws_access_key_id=#{ self.aws_key };aws_secret_access_key=#{ self.aws_secret }'"
       query_fragments << "REGION '#{ self.s3_region }'"
       query_fragments << "CSV IGNOREHEADER 1 TRUNCATECOLUMNS ACCEPTINVCHARS EMPTYASNULL"
-      query_fragments << "DATEFORMAT 'auto' gzip"
+      query_fragments << "DATEFORMAT 'auto' GZIP"
       return query_fragments.join(" ")
     end
 
