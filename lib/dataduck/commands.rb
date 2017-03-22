@@ -102,9 +102,9 @@ module DataDuck
 
       only_destination = DataDuck::Destination.only_destination
 
+      etl = nil
       if table_names_underscore.length == 1 && table_names_underscore[0] == "all"
         etl = ETL.new(destinations: [only_destination], autoload_tables: true)
-        etl.process!
       else
         tables = []
         table_names_underscore.each do |table_name|
@@ -122,7 +122,11 @@ module DataDuck
             autoload_tables: false,
             tables: tables
         })
-        etl.process!
+      end
+      etl.process!
+      
+      if etl.errored?
+        exit(1)
       end
     end
 

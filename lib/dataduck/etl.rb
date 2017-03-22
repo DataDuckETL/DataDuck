@@ -13,11 +13,13 @@ module DataDuck
 
     attr_accessor :destinations
     attr_accessor :tables
+    attr_accessor :errored_tables
 
     def initialize(options = {})
       self.class.destinations ||= []
       @tables = options[:tables] || []
       @destinations = options[:destinations] || []
+      @errored_tables = []
 
       @autoload_tables = options[:autoload_tables].nil? ? true : options[:autoload_tables]
       if @autoload_tables
@@ -32,6 +34,10 @@ module DataDuck
         end
       end
     end
+    
+    def errored?
+      @errored_tables.length > 0
+    end
 
     def process!
       Logs.info("Processing ETL on pid #{ Process.pid }...")
@@ -44,7 +50,7 @@ module DataDuck
         destinations_to_use << DataDuck::Destination.only_destination
       end
 
-      errored_tables = []
+      @errored_tables = []
 
       @tables.each do |table_or_class|
         table = table_or_class.kind_of?(DataDuck::Table) ? table_or_class : table_or_class.new
@@ -53,13 +59,13 @@ module DataDuck
           table.etl!(destinations_to_use)
         rescue => err
           Logs.error("Error while processing table '#{ table.name }': #{ err.to_s }\n#{ err.backtrace.join("\n") }")
-          errored_tables << table
+          @errored_tables << table
         end
       end
 
-      Logs.info("Finished ETL processing for pid #{ Process.pid }, #{ @tables.length - errored_tables.length } succeeded, #{ errored_tables.length } failed")
-      if errored_tables.length > 0
-        Logs.info("The following tables encountered errors: '#{ errored_tables.map(&:name).join("', '") }'")
+      Logs.info("Finished ETL processing for pid #{ Process.pid }, #{ @tables.length - @errored_tables.length } succeeded, #{ @errored_tables.length } failed")
+      if @errored_tables.length > 0
+        Logs.info("The following tables encountered errors: '#{ @errored_tables.map(&:name).join("', '") }'")
       end
     end
   end
